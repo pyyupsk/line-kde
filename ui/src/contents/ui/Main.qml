@@ -8,31 +8,8 @@ import com.pyyupsk.linekde
 Kirigami.ApplicationWindow {
     id: root
 
-    // LINE Design System palette and scale (designsystem.line.me/LDSM)
-    QtObject {
-        id: lds
-
-        readonly property color green: "#06c755"
-        readonly property color blue: "#4d73ff"
-        readonly property color red: "#ff334b"
-        readonly property color bg: "#1a1a1a"
-        readonly property color surface: "#1f1f1f"
-        readonly property color surfaceAlt: "#2a2a2a"
-        readonly property color line: "#3f3f3f"
-        readonly property color text: "#ffffff"
-        readonly property color textSecondary: "#c8c8c8"
-        readonly property color textTertiary: "#949494"
-        readonly property int radius: 12
-        readonly property int radiusSmall: 8
-        readonly property int gap: 12
-        readonly property int pad: 16
-        readonly property int headingSize: 20
-        readonly property int bodySize: 15
-        readonly property int smallSize: 12
-    }
-
     title: i18n("LINE for KDE")
-    color: lds.bg
+    color: Lds.bg
 
     minimumWidth: Kirigami.Units.gridUnit * 20
     minimumHeight: Kirigami.Units.gridUnit * 20
@@ -92,6 +69,8 @@ Kirigami.ApplicationWindow {
 
     pageStack.initialPage: page
 
+
+
     Component {
         id: settingsComponent
 
@@ -106,7 +85,7 @@ Kirigami.ApplicationWindow {
                     text: i18n("Language")
                     icon.name: "set-language"
                     contentItem: RowLayout {
-                        spacing: lds.gap
+                        spacing: Lds.gap
 
                         Kirigami.Icon {
                             source: "set-language"
@@ -117,14 +96,14 @@ Kirigami.ApplicationWindow {
                         QQC2.Label {
                             Layout.fillWidth: true
                             text: i18n("Language")
-                            color: lds.text
-                            font.pointSize: lds.bodySize
+                            color: Lds.text
+                            font.pointSize: Lds.bodySize
                         }
 
                         QQC2.Label {
                             text: i18n("English")
-                            color: lds.textTertiary
-                            font.pointSize: lds.bodySize
+                            color: Lds.textTertiary
+                            font.pointSize: Lds.bodySize
                         }
                     }
                 }
@@ -132,7 +111,7 @@ Kirigami.ApplicationWindow {
                 Rectangle {
                     Layout.fillWidth: true
                     implicitHeight: 1
-                    color: lds.line
+                    color: Lds.line
                 }
 
                 Delegates.RoundedItemDelegate {
@@ -140,7 +119,7 @@ Kirigami.ApplicationWindow {
                     onClicked: root.pageStack.pushDialogLayer(Qt.resolvedUrl("About.qml"))
 
                     contentItem: RowLayout {
-                        spacing: lds.gap
+                        spacing: Lds.gap
 
                         Kirigami.Icon {
                             source: "help-about"
@@ -151,8 +130,8 @@ Kirigami.ApplicationWindow {
                         QQC2.Label {
                             Layout.fillWidth: true
                             text: i18n("About LINE for KDE")
-                            color: lds.text
-                            font.pointSize: lds.bodySize
+                            color: Lds.text
+                            font.pointSize: Lds.bodySize
                         }
 
                         Kirigami.Icon {
@@ -171,25 +150,25 @@ Kirigami.ApplicationWindow {
 
         Kirigami.ScrollablePage {
             footer: Rectangle {
-                color: lds.surface
-                implicitHeight: composer.implicitHeight + lds.gap * 2
+                color: Lds.surface
+                implicitHeight: composer.implicitHeight + Lds.gap * 2
 
                 RowLayout {
                     id: composer
                     anchors.fill: parent
-                    anchors.margins: lds.gap
-                    spacing: lds.gap
+                    anchors.margins: Lds.gap
+                    spacing: Lds.gap
 
                     QQC2.TextField {
                         id: composerField
                         Layout.fillWidth: true
                         placeholderText: i18n("Message")
-                        font.pointSize: lds.bodySize
+                        font.pointSize: Lds.bodySize
                         background: Rectangle {
-                            color: lds.surfaceAlt
+                            color: Lds.surfaceAlt
                             radius: height / 2
                             border.width: 1
-                            border.color: composerField.activeFocus ? lds.green : lds.line
+                            border.color: composerField.activeFocus ? Lds.green : Lds.line
                         }
                         onAccepted: sendButton.send()
                     }
@@ -202,7 +181,7 @@ Kirigami.ApplicationWindow {
                         icon.name: "document-send"
                         onClicked: send()
                         background: Rectangle {
-                            color: sendButton.enabled ? lds.green : lds.surfaceAlt
+                            color: sendButton.enabled ? Lds.green : Lds.surfaceAlt
                             radius: height / 2
                         }
                         contentItem: Kirigami.Icon {
@@ -224,19 +203,19 @@ Kirigami.ApplicationWindow {
             ListView {
                 model: Core.messages
                 clip: true
-                spacing: lds.gap
-                topMargin: lds.pad
-                bottomMargin: lds.pad
+                spacing: Lds.gap
+                topMargin: Lds.pad
+                bottomMargin: Lds.pad
 
                 section.property: "day"
                 section.delegate: QQC2.Label {
                     width: ListView.view ? ListView.view.width : 0
                     horizontalAlignment: Text.AlignHCenter
                     text: section
-                    color: lds.textTertiary
-                    font.pointSize: lds.smallSize
-                    topPadding: lds.gap
-                    bottomPadding: lds.gap
+                    color: Lds.textTertiary
+                    font.pointSize: Lds.smallSize
+                    topPadding: Lds.gap
+                    bottomPadding: Lds.gap
                 }
 
                 onCountChanged: positionViewAtEnd()
@@ -246,7 +225,7 @@ Kirigami.ApplicationWindow {
                     required property var modelData
                     width: ListView.view.width
                     layoutDirection: modelData.mine ? Qt.RightToLeft : Qt.LeftToRight
-                    spacing: lds.gap
+                    spacing: Lds.gap
 
                     Rectangle {
                         visible: !bubbleRow.modelData.mine
@@ -254,14 +233,14 @@ Kirigami.ApplicationWindow {
                         implicitWidth: Kirigami.Units.gridUnit * 2
                         implicitHeight: implicitWidth
                         radius: width / 2
-                        color: lds.line
+                        color: Lds.line
 
                         QQC2.Label {
                             anchors.centerIn: parent
                             text: bubbleRow.modelData.fromName.charAt(0).toUpperCase()
-                            color: lds.textSecondary
+                            color: Lds.textSecondary
                             font.bold: true
-                            font.pointSize: lds.smallSize
+                            font.pointSize: Lds.smallSize
                         }
                     }
 
@@ -272,33 +251,33 @@ Kirigami.ApplicationWindow {
                         QQC2.Label {
                             visible: !bubbleRow.modelData.mine
                             text: bubbleRow.modelData.fromName
-                            color: lds.textSecondary
-                            font.pointSize: lds.smallSize
+                            color: Lds.textSecondary
+                            font.pointSize: Lds.smallSize
                         }
 
                         Rectangle {
-                            implicitWidth: Math.min(bubbleText.implicitWidth + lds.pad * 2, bubbleRow.width * 0.68)
-                            implicitHeight: bubbleText.implicitHeight + lds.pad
-                            radius: lds.radius
+                            implicitWidth: Math.min(bubbleText.implicitWidth + Lds.pad * 2, bubbleRow.width * 0.68)
+                            implicitHeight: bubbleText.implicitHeight + Lds.pad
+                            radius: Lds.radius
 
-                            color: bubbleRow.modelData.mine ? lds.green : lds.surfaceAlt
+                            color: bubbleRow.modelData.mine ? Lds.green : Lds.surfaceAlt
 
                             QQC2.Label {
                                 id: bubbleText
                                 anchors.fill: parent
-                                anchors.margins: lds.pad / 2
+                                anchors.margins: Lds.pad / 2
                                 text: bubbleRow.modelData.text
                                 textFormat: Text.PlainText
                                 wrapMode: Text.Wrap
-                                color: bubbleRow.modelData.mine ? "#ffffff" : lds.text
-                                font.pointSize: lds.bodySize
+                                color: bubbleRow.modelData.mine ? "#ffffff" : Lds.text
+                                font.pointSize: Lds.bodySize
                             }
                         }
 
                         QQC2.Label {
                             text: Qt.formatTime(new Date(bubbleRow.modelData.time), "HH:mm")
-                            color: lds.textTertiary
-                            font.pointSize: lds.smallSize
+                            color: Lds.textTertiary
+                            font.pointSize: Lds.smallSize
                         }
                     }
                 }
@@ -344,26 +323,26 @@ Kirigami.ApplicationWindow {
                 id: chatRow
                 required property var modelData
                 width: ListView.view.width
-                leftPadding: lds.pad
-                rightPadding: lds.pad
-                topPadding: lds.gap
-                bottomPadding: lds.gap
+                leftPadding: Lds.pad
+                rightPadding: Lds.pad
+                topPadding: Lds.gap
+                bottomPadding: Lds.gap
 
                 contentItem: RowLayout {
-                    spacing: lds.gap
+                    spacing: Lds.gap
 
                     Rectangle {
                         implicitWidth: Kirigami.Units.gridUnit * 2.75
                         implicitHeight: implicitWidth
                         radius: width / 2
-                        color: lds.line
+                        color: Lds.line
 
                         QQC2.Label {
                             anchors.centerIn: parent
                             text: chatRow.modelData.name.charAt(0).toUpperCase()
-                            color: lds.textSecondary
+                            color: Lds.textSecondary
                             font.bold: true
-                            font.pointSize: lds.bodySize
+                            font.pointSize: Lds.bodySize
                         }
                     }
 
@@ -374,9 +353,9 @@ Kirigami.ApplicationWindow {
                         QQC2.Label {
                             Layout.fillWidth: true
                             text: chatRow.modelData.name.length > 0 ? chatRow.modelData.name : chatRow.modelData.mid
-                            color: lds.text
+                            color: Lds.text
                             font.bold: true
-                            font.pointSize: lds.bodySize
+                            font.pointSize: Lds.bodySize
                             elide: Text.ElideRight
                         }
 
@@ -384,8 +363,8 @@ Kirigami.ApplicationWindow {
                             Layout.fillWidth: true
                             text: chatRow.modelData.lastText
                             textFormat: Text.PlainText
-                            color: lds.textSecondary
-                            font.pointSize: lds.smallSize
+                            color: Lds.textSecondary
+                            font.pointSize: Lds.smallSize
                             elide: Text.ElideRight
                         }
                     }
@@ -396,24 +375,24 @@ Kirigami.ApplicationWindow {
                         QQC2.Label {
                             Layout.alignment: Qt.AlignRight
                             text: chatRow.modelData.lastTime > 0 ? Qt.formatTime(new Date(chatRow.modelData.lastTime), "HH:mm") : ""
-                            color: lds.textTertiary
-                            font.pointSize: lds.smallSize
+                            color: Lds.textTertiary
+                            font.pointSize: Lds.smallSize
                         }
 
                         Rectangle {
                             Layout.alignment: Qt.AlignRight
                             visible: chatRow.modelData.unread > 0
-                            implicitWidth: unreadLabel.implicitWidth + lds.gap
+                            implicitWidth: unreadLabel.implicitWidth + Lds.gap
                             implicitHeight: unreadLabel.implicitHeight + 4
                             radius: height / 2
-                            color: lds.green
+                            color: Lds.green
 
                             QQC2.Label {
                                 id: unreadLabel
                                 anchors.centerIn: parent
                                 text: chatRow.modelData.unread
                                 color: "#ffffff"
-                                font.pointSize: lds.smallSize
+                                font.pointSize: Lds.smallSize
                                 font.bold: true
                             }
                         }
@@ -442,12 +421,12 @@ Kirigami.ApplicationWindow {
                 ColumnLayout {
                     anchors.centerIn: parent
                     width: Kirigami.Units.gridUnit * 17
-                    spacing: lds.gap
+                    spacing: Lds.gap
 
                     QQC2.Label {
                         Layout.fillWidth: true
                         text: "LINE"
-                        color: lds.green
+                        color: Lds.green
                         font.pointSize: 26
                         font.bold: true
                         horizontalAlignment: Text.AlignHCenter
@@ -457,7 +436,7 @@ Kirigami.ApplicationWindow {
                         Layout.fillWidth: true
                         enabled: false
                         placeholderText: i18n("Email address")
-                        font.pointSize: lds.bodySize
+                        font.pointSize: Lds.bodySize
                     }
 
                     QQC2.TextField {
@@ -465,14 +444,14 @@ Kirigami.ApplicationWindow {
                         enabled: false
                         placeholderText: i18n("Password")
                         echoMode: TextInput.Password
-                        font.pointSize: lds.bodySize
+                        font.pointSize: Lds.bodySize
                     }
 
                     QQC2.Button {
                         Layout.fillWidth: true
                         enabled: false
                         text: i18n("Log in")
-                        font.pointSize: lds.bodySize
+                        font.pointSize: Lds.bodySize
                     }
 
                     QQC2.Label {
@@ -480,8 +459,8 @@ Kirigami.ApplicationWindow {
                         horizontalAlignment: Text.AlignHCenter
                         wrapMode: Text.WordWrap
                         text: i18n("LINE for KDE signs in with a QR code only, so no password is ever stored")
-                        color: lds.textTertiary
-                        font.pointSize: lds.smallSize
+                        color: Lds.textTertiary
+                        font.pointSize: Lds.smallSize
                     }
                 }
             }
@@ -489,7 +468,7 @@ Kirigami.ApplicationWindow {
             Rectangle {
                 Layout.fillHeight: true
                 implicitWidth: 1
-                color: lds.line
+                color: Lds.line
             }
 
             Item {
@@ -500,13 +479,13 @@ Kirigami.ApplicationWindow {
                 ColumnLayout {
                     anchors.centerIn: parent
                     width: Kirigami.Units.gridUnit * 14
-                    spacing: lds.gap
+                    spacing: Lds.gap
 
                     QQC2.Label {
                         Layout.fillWidth: true
                         text: i18n("QR code login")
-                        color: lds.text
-                        font.pointSize: lds.headingSize
+                        color: Lds.text
+                        font.pointSize: Lds.headingSize
                         font.bold: true
                         horizontalAlignment: Text.AlignHCenter
                     }
@@ -515,8 +494,8 @@ Kirigami.ApplicationWindow {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignHCenter
                         wrapMode: Text.WordWrap
-                        color: lds.textSecondary
-                        font.pointSize: lds.smallSize
+                        color: Lds.textSecondary
+                        font.pointSize: Lds.smallSize
                         text: {
                             switch (Core.status) {
                             case "error":
@@ -536,12 +515,12 @@ Kirigami.ApplicationWindow {
                         visible: Core.status === "waiting"
                         implicitWidth: Kirigami.Units.gridUnit * 11
                         implicitHeight: implicitWidth
-                        radius: lds.radius
+                        radius: Lds.radius
                         color: "#ffffff"
 
                         Image {
                             anchors.fill: parent
-                            anchors.margins: lds.gap
+                            anchors.margins: Lds.gap
                             source: Core.qrSource
                             fillMode: Image.PreserveAspectFit
                             smooth: false
@@ -552,7 +531,7 @@ Kirigami.ApplicationWindow {
                         Layout.alignment: Qt.AlignHCenter
                         visible: Core.status === "idle" || Core.status === "error"
                         text: Core.status === "error" ? i18n("Try Again") : i18n("Sign In")
-                        font.pointSize: lds.bodySize
+                        font.pointSize: Lds.bodySize
                         onClicked: Core.start()
                     }
                 }

@@ -69,15 +69,15 @@ int main(int argc, char *argv[])
         // The program version string.
         QStringLiteral(LINEKDE_VERSION_STRING),
         // Short description of what the app does.
-        i18n("Application Description"),
+        i18n("LINE client for KDE Plasma"),
         // The license this code is released under.
         KAboutLicense::GPL,
         // Copyright Statement.
-        i18n("(c) 2026"));
-    aboutData.addAuthor(i18nc("@info:credit", "pyyupsk"),
-                        i18nc("@info:credit", "Maintainer"),
-                        u""_s,
-                        u"https://yourwebsite.com"_s);
+        i18n("(c) 2026 pyyupsk"));
+    aboutData.addAuthor(i18nc("@info:credit", "pyyupsk"), i18nc("@info:credit", "Maintainer"), u"contact@fasu.dev"_s);
+    aboutData.setHomepage(u"https://github.com/pyyupsk/line-kde"_s);
+    aboutData.setBugAddress(QByteArrayLiteral("https://github.com/pyyupsk/line-kde/issues"));
+    aboutData.setDesktopFileName(u"com.pyyupsk.linekde"_s);
     aboutData.setTranslator(i18nc("NAME OF TRANSLATORS", "Your names"), i18nc("EMAIL OF TRANSLATORS", "Your emails"));
     KAboutData::setApplicationData(aboutData);
     QGuiApplication::setWindowIcon(QIcon::fromTheme(u"com.pyyupsk.linekde"_s));
@@ -90,6 +90,7 @@ int main(int argc, char *argv[])
 
     CoreClient core;
     engine.rootContext()->setContextProperty(u"Core"_s, &core);
+    engine.rootContext()->setContextProperty(u"AppVersion"_s, QStringLiteral(LINEKDE_VERSION_STRING));
 
     KLocalization::setupLocalizedContext(&engine);
     engine.loadFromModule("com.pyyupsk.linekde", u"Main");

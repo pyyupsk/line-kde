@@ -1,16 +1,20 @@
 # SPDX-License-Identifier: BSD-2-Clause
 # SPDX-FileCopyrightText: 2026 pyyupsk <>
 
+
 # Target: static library
+set_source_files_properties(contents/ui/Lds.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 qt_add_qml_module(linekde_static
     STATIC
     URI com.pyyupsk.linekde
     VERSION 1.0
     OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/com/pyyupsk/linekde"
     QML_FILES
+        contents/ui/Lds.qml
         contents/ui/Main.qml
         contents/ui/About.qml
 )
+
 
 target_sources(linekde_static PUBLIC
     app.cpp
