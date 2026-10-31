@@ -18,7 +18,10 @@ QtObject {
     readonly property int radiusSmall: 8
     readonly property int gap: 12
     readonly property int pad: 16
-    readonly property int headingSize: 20
-    readonly property int bodySize: 15
+    readonly property int displaySize: 24
+    readonly property int headingSize: 17
+    readonly property int titleSize: 15
+    readonly property int bodySize: 14
     readonly property int smallSize: 12
+    readonly property int buttonHeight: 48
 }

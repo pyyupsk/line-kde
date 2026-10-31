@@ -78,9 +78,6 @@ Kirigami.ApplicationWindow {
 
     pageStack.initialPage: page
 
-
-
-
     Component {
         id: chatComponent
 
@@ -258,8 +255,8 @@ Kirigami.ApplicationWindow {
             target: Core
             function onChanged() {
                 if (Core.status === "waiting") {
-                    page.qrSecondsLeft = 120
-                    page.qrExpired = false
+                    page.qrSecondsLeft = 120;
+                    page.qrExpired = false;
                 }
             }
         }
@@ -312,8 +309,8 @@ Kirigami.ApplicationWindow {
                             Layout.fillWidth: true
                             text: chatRow.modelData.name.length > 0 ? chatRow.modelData.name : chatRow.modelData.mid
                             color: Lds.text
-                            font.bold: true
-                            font.pointSize: Lds.bodySize
+                            font.weight: Font.DemiBold
+                            font.pointSize: Lds.titleSize
                             elide: Text.ElideRight
                         }
 
@@ -376,8 +373,8 @@ Kirigami.ApplicationWindow {
                 Layout.fillWidth: true
                 text: i18n("LINE")
                 color: Lds.green
-                font.pointSize: 26
-                font.bold: true
+                font.pointSize: Lds.displaySize
+                font.weight: Font.Heavy
                 horizontalAlignment: Text.AlignHCenter
             }
 
@@ -432,21 +429,28 @@ Kirigami.ApplicationWindow {
                 }
             }
 
-            QQC2.Label {
-                Layout.fillWidth: true
-                visible: Core.status === "waiting" && !page.qrExpired
-                text: i18n("Valid for %1s", page.qrSecondsLeft)
-                color: Lds.textTertiary
-                font.pointSize: Lds.smallSize
-                horizontalAlignment: Text.AlignHCenter
-            }
-
             QQC2.Button {
                 Layout.alignment: Qt.AlignHCenter
+                Layout.preferredWidth: Kirigami.Units.gridUnit * 11
+                Layout.preferredHeight: Lds.buttonHeight
                 visible: Core.status === "idle" || Core.status === "error" || page.qrExpired
                 text: page.qrExpired ? i18n("Update") : (Core.status === "error" ? i18n("Try Again") : i18n("Sign In"))
                 font.pointSize: Lds.bodySize
                 onClicked: Core.restartLogin()
+
+                background: Rectangle {
+                    color: Lds.green
+                    radius: Lds.radiusSmall
+                }
+
+                contentItem: QQC2.Label {
+                    text: parent.text
+                    color: "#ffffff"
+                    font.pointSize: Lds.bodySize
+                    font.weight: Font.DemiBold
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
             }
         }
     }
