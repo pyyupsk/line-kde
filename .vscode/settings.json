@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "/home/pyyupsk/work/pyyupsk/line-kde/ui"
+  "cmake.buildDirectory": "${workspaceFolder}/ui/build",
+  "cmake.sourceDirectory": "${workspaceFolder}/ui"
 }
