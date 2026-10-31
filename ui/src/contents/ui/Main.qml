@@ -392,7 +392,7 @@ Kirigami.ApplicationWindow {
                         Layout.fillWidth: true
                         horizontalAlignment: Text.AlignHCenter
                         wrapMode: Text.WordWrap
-                        text: i18n("line-kde signs in with a QR code only, so no password is ever stored")
+                        text: i18n("LINE for KDE signs in with a QR code only, so no password is ever stored")
                         color: lds.textTertiary
                         font.pointSize: lds.smallSize
                     }
