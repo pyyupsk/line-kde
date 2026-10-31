@@ -398,7 +398,6 @@ Kirigami.ApplicationWindow {
                     case "error":
                         return Core.errorText;
                     case "starting":
-                        return i18n("Starting…");
                     case "waiting":
                         if (page.qrExpired)
                             return i18n("This QR code is no longer valid. Please update the QR code.");
@@ -413,8 +412,7 @@ Kirigami.ApplicationWindow {
 
             Rectangle {
                 Layout.alignment: Qt.AlignHCenter
-                visible: Core.status === "waiting" && page.pin.length === 0
-                opacity: page.qrExpired ? 0.25 : 1
+                visible: page.pin.length === 0
                 implicitWidth: Kirigami.Units.gridUnit * 11
                 implicitHeight: implicitWidth
                 radius: Lds.radius
@@ -423,9 +421,30 @@ Kirigami.ApplicationWindow {
                 Image {
                     anchors.fill: parent
                     anchors.margins: Lds.gap
+                    visible: Core.status === "waiting"
+                    opacity: page.qrExpired ? 0.25 : 1
                     source: Core.qrSource
                     fillMode: Image.PreserveAspectFit
                     smooth: false
+                }
+
+                Kirigami.Icon {
+                    anchors.centerIn: parent
+                    width: Kirigami.Units.gridUnit * 2.5
+                    height: width
+                    visible: Core.status === "starting"
+                    source: "process-working-symbolic"
+                    // the theme draws BusyIndicator light gray, invisible on white
+                    isMask: true
+                    color: Lds.green
+
+                    RotationAnimator on rotation {
+                        from: 0
+                        to: 360
+                        duration: 700
+                        loops: Animation.Infinite
+                        running: Core.status === "starting"
+                    }
                 }
             }
 
@@ -465,7 +484,9 @@ Kirigami.ApplicationWindow {
                 Layout.alignment: Qt.AlignHCenter
                 Layout.preferredWidth: Kirigami.Units.gridUnit * 11
                 Layout.preferredHeight: Lds.buttonHeight
-                visible: Core.status === "idle" || Core.status === "error" || page.qrExpired
+                readonly property bool shown: Core.status === "idle" || Core.status === "error" || page.qrExpired
+                opacity: shown ? 1 : 0
+                enabled: shown
                 text: page.qrExpired ? i18n("Update") : (Core.status === "error" ? i18n("Try Again") : i18n("Sign In"))
                 font.pointSize: Lds.bodySize
                 onClicked: Core.restartLogin()

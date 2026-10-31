@@ -65,7 +65,6 @@ const auth = async () => {
 			keepTokenFresh();
 			return profile();
 		} catch {
-			// an expired token falls through to the QR login
 			await storage.delete(TOKEN_KEY);
 			send({ method: "session.saved" });
 		}
@@ -94,7 +93,6 @@ const methods: Record<string, (params?: Record<string, unknown>) => Promise<unkn
 		client = null;
 		let revoked = false;
 		try {
-			// revoke the token on LINE's side too, so this device leaves the account's device list
 			if (signedIn)
 				revoked = Boolean(
 					await Promise.race([
