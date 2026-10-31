@@ -37,7 +37,7 @@ const keepTokenFresh = () => {
 	if (!client || tokenSaverAttached) return;
 	tokenSaverAttached = true;
 	client.base.on("update:authtoken", (token: string) => {
-		if (token) void storage.set(TOKEN_KEY, token).then(() => send({ method: "session.saved" }));
+		if (token && client) void storage.set(TOKEN_KEY, token).then(() => send({ method: "session.saved" }));
 	});
 };
 
@@ -89,14 +89,28 @@ const auth = async () => {
 const methods: Record<string, (params?: Record<string, unknown>) => Promise<unknown>> = {
 	"auth.start": auth,
 	"auth.logout": async () => {
+		const signedIn = client;
 		client = null;
+		let revoked = false;
+		try {
+			// revoke the token on LINE's side too, so this device leaves the account's device list
+			if (signedIn)
+				revoked = Boolean(
+					await Promise.race([
+						signedIn.base.auth.logoutZ(),
+						new Promise((_, reject) => setTimeout(() => reject(new Error("timed out")), 5000)),
+					]),
+				);
+		} catch (error) {
+			console.error("logoutZ failed:", (error as Error)?.message ?? error);
+		}
 		tokenSaverAttached = false;
 		selfMid = "";
 		selfName = "";
 		people.clear();
 		chatCache.clear();
 		if (existsSync(SESSION)) unlinkSync(SESSION);
-		return { ok: true };
+		return { ok: true, revoked };
 	},
 	"chats.list": async () => {
 		if (!client) throw new Error("not signed in");
