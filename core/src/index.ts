@@ -108,6 +108,7 @@ const methods: Record<string, (params?: Record<string, unknown>) => Promise<unkn
 					fromName: who.name || (from === selfMid ? selfName : from.slice(0, 8)),
 					picture: who.picture,
 					time: Number(message.raw.createdTime ?? 0),
+					day: new Date(Number(message.raw.createdTime ?? 0)).toLocaleDateString("sv-SE"),
 				};
 			}),
 		);

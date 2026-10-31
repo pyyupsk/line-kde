@@ -65,27 +65,73 @@ Kirigami.ApplicationWindow {
                 model: Core.messages
                 clip: true
 
-                delegate: ColumnLayout {
+                section.property: "day"
+                section.delegate: QQC2.Label {
+                    width: ListView.view ? ListView.view.width : 0
+                    horizontalAlignment: Text.AlignHCenter
+                    text: section
+                    font: Kirigami.Theme.smallFont
+                    opacity: 0.6
+                    topPadding: Kirigami.Units.smallSpacing
+                }
+
+                onCountChanged: positionViewAtEnd()
+
+                delegate: RowLayout {
+                    id: bubbleRow
                     required property var modelData
                     width: ListView.view.width
-                    spacing: 0
+                    layoutDirection: modelData.mine ? Qt.RightToLeft : Qt.LeftToRight
+                    spacing: Kirigami.Units.smallSpacing
 
-                    QQC2.Label {
-                        Layout.fillWidth: true
-                        padding: Kirigami.Units.smallSpacing
-                        text: modelData.fromName + " · " + Qt.formatTime(new Date(modelData.time), "HH:mm")
-                        font: Kirigami.Theme.smallFont
-                        opacity: 0.6
-                        horizontalAlignment: modelData.mine ? Text.AlignRight : Text.AlignLeft
+                    Rectangle {
+                        visible: !bubbleRow.modelData.mine
+                        Layout.alignment: Qt.AlignTop
+                        implicitWidth: Kirigami.Units.gridUnit * 2
+                        implicitHeight: implicitWidth
+                        radius: width / 2
+                        color: Kirigami.Theme.alternateBackgroundColor
+
+                        QQC2.Label {
+                            anchors.centerIn: parent
+                            text: bubbleRow.modelData.fromName.charAt(0).toUpperCase()
+                            font.bold: true
+                        }
                     }
 
-                    QQC2.Label {
-                        Layout.fillWidth: true
-                        padding: Kirigami.Units.smallSpacing
-                        text: modelData.text
-                        textFormat: Text.PlainText
-                        wrapMode: Text.Wrap
-                        horizontalAlignment: modelData.mine ? Text.AlignRight : Text.AlignLeft
+                    ColumnLayout {
+                        Layout.maximumWidth: bubbleRow.width * 0.7
+                        spacing: Kirigami.Units.smallSpacing / 2
+
+                        QQC2.Label {
+                            visible: !bubbleRow.modelData.mine
+                            text: bubbleRow.modelData.fromName
+                            font: Kirigami.Theme.smallFont
+                            opacity: 0.7
+                        }
+
+                        Rectangle {
+                            implicitWidth: Math.min(bubbleText.implicitWidth + Kirigami.Units.largeSpacing * 2, bubbleRow.width * 0.7)
+                            implicitHeight: bubbleText.implicitHeight + Kirigami.Units.smallSpacing * 5
+                            radius: Kirigami.Units.largeSpacing
+                            color: bubbleRow.modelData.mine ? "#06c755" : Kirigami.Theme.alternateBackgroundColor
+
+                            QQC2.Label {
+                                id: bubbleText
+                                anchors.fill: parent
+                                anchors.margins: Kirigami.Units.smallSpacing * 2
+                                text: bubbleRow.modelData.text
+                                textFormat: Text.PlainText
+                                wrapMode: Text.Wrap
+                                color: bubbleRow.modelData.mine ? "#ffffff" : Kirigami.Theme.textColor
+                            }
+                        }
+
+                        QQC2.Label {
+                            text: Qt.formatTime(new Date(bubbleRow.modelData.time), "HH:mm")
+                            font: Kirigami.Theme.smallFont
+                            opacity: 0.55
+                        }
                     }
                 }
             }
