@@ -39,6 +39,8 @@ find_package(KF6 ${KF6_MIN_VERSION} REQUIRED COMPONENTS Kirigami CoreAddons Conf
 qt_policy(SET QTP0001 NEW)
 qt_policy(SET QTP0004 OLD)
 
+set(QT_QML_GENERATE_QMLLS_INI ON)
+
 ecm_find_qmlmodule(org.kde.kirigamiaddons.formcard 1.0)
 
 add_subdirectory(src)
