@@ -9,6 +9,7 @@ namespace
     constexpr int AuthRequest = 1;
     constexpr int ChatsRequest = 2;
     constexpr int MessagesRequest = 3;
+    constexpr int SendRequest = 4;
 }
 
 CoreClient::CoreClient(QObject *parent)
@@ -57,6 +58,7 @@ void CoreClient::openChat(const QString &mid)
     {
         return;
     }
+    m_currentChat = mid;
     m_messages.clear();
     m_chatError.clear();
     Q_EMIT messagesChanged();
@@ -66,6 +68,23 @@ void CoreClient::openChat(const QString &mid)
     QJsonObject request;
     request.insert(QStringLiteral("id"), MessagesRequest);
     request.insert(QStringLiteral("method"), QStringLiteral("chat.messages"));
+    request.insert(QStringLiteral("params"), params);
+    m_process.write(QJsonDocument(request).toJson(QJsonDocument::Compact) + '\n');
+}
+
+void CoreClient::sendMessage(const QString &text)
+{
+    if (m_process.state() == QProcess::NotRunning || m_currentChat.isEmpty() || text.isEmpty())
+    {
+        return;
+    }
+
+    QJsonObject params;
+    params.insert(QStringLiteral("mid"), m_currentChat);
+    params.insert(QStringLiteral("text"), text);
+    QJsonObject request;
+    request.insert(QStringLiteral("id"), SendRequest);
+    request.insert(QStringLiteral("method"), QStringLiteral("chat.send"));
     request.insert(QStringLiteral("params"), params);
     m_process.write(QJsonDocument(request).toJson(QJsonDocument::Compact) + '\n');
 }
@@ -140,6 +159,13 @@ void CoreClient::handle(const QJsonObject &message)
         {
             m_messages.append(entry.toObject().toVariantMap());
         }
+        Q_EMIT messagesChanged();
+        return;
+    }
+
+    if (id == SendRequest)
+    {
+        m_messages.append(message.value(QStringLiteral("result")).toObject().toVariantMap());
         Q_EMIT messagesChanged();
         return;
     }

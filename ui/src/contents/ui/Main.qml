@@ -61,6 +61,28 @@ Kirigami.ApplicationWindow {
         id: chatComponent
 
         Kirigami.ScrollablePage {
+            footer: RowLayout {
+                spacing: Kirigami.Units.smallSpacing
+
+                QQC2.TextField {
+                    id: composer
+                    Layout.fillWidth: true
+                    placeholderText: i18n("Message")
+                    onAccepted: sendButton.send()
+                }
+
+                QQC2.Button {
+                    id: sendButton
+                    icon.name: "document-send"
+                    enabled: composer.text.length > 0
+                    onClicked: send()
+                    function send() {
+                        Core.sendMessage(composer.text);
+                        composer.text = "";
+                    }
+                }
+            }
+
             ListView {
                 model: Core.messages
                 clip: true

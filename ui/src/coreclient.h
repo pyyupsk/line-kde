@@ -35,6 +35,7 @@ public:
     Q_INVOKABLE void start();
     Q_INVOKABLE void listChats();
     Q_INVOKABLE void openChat(const QString &mid);
+    Q_INVOKABLE void sendMessage(const QString &text);
 
 Q_SIGNALS:
     void changed();
@@ -52,6 +53,7 @@ private:
     QVariantList m_chats;
     QVariantList m_messages;
     QString m_chatError;
+    QString m_currentChat;
     QString m_status = QStringLiteral("idle");
     QString m_qrSource;
     QString m_pincode;

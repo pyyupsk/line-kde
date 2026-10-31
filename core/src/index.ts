@@ -101,6 +101,33 @@ const methods: Record<string, (params?: Record<string, unknown>) => Promise<unkn
 		);
 		return items.sort((a, b) => b.lastTime - a.lastTime);
 	},
+	"chat.send": async (params) => {
+		if (!client) throw new Error("not signed in");
+		const mid = String(params?.mid);
+		const text = String(params?.text ?? "");
+		const attempt = (e2ee: boolean) => client!.base.talk.sendMessage({ to: mid, text, e2ee });
+		let sent;
+		try {
+			sent = await attempt(true);
+		} catch (error) {
+			// OA, old accounts and OpenChat reject Letter Sealing
+			const rejection = error as { type?: string; data?: { code?: string } };
+			const unsupported = rejection?.type === "Not support E2EE" || rejection?.data?.code === "E2EE_RECREATE_GROUP_KEY";
+			if (!unsupported) throw error;
+			sent = await attempt(false);
+		}
+		const time = Number(sent.createdTime ?? Date.now());
+		return {
+			id: String(sent.id),
+			text,
+			from: selfMid,
+			mine: true,
+			fromName: selfName,
+			picture: "",
+			time,
+			day: new Date(time).toLocaleDateString("sv-SE"),
+		};
+	},
 	"chat.messages": async (params) => {
 		const person = async (mid: string) => {
 			const known = people.get(mid);
