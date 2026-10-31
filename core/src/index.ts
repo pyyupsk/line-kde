@@ -72,7 +72,34 @@ const methods: Record<string, (params?: Record<string, unknown>) => Promise<unkn
 		const chats = await client.fetchJoinedChats();
 		chatCache.clear();
 		for (const chat of chats) chatCache.set(chat.mid, chat);
-		return chats.map((chat) => ({ mid: chat.mid, name: chat.name, type: String(chat.raw?.type ?? "") }));
+
+		const boxes = await client.base.talk.getMessageBoxes({ messageBoxListRequest: {} });
+		const unread = new Map(boxes.messageBoxes.map((box) => [box.id, Number(box.unreadCount ?? 0)]));
+
+		const items = await Promise.all(
+			chats.map(async (chat) => {
+				let lastText = "";
+				let lastTime = 0;
+				try {
+					const last = (await chat.fetchMessages(1)).at(-1);
+					if (last) {
+						lastText = last.raw.text ?? "";
+						lastTime = Number(last.raw.createdTime ?? 0);
+					}
+				} catch {
+					// chats without a message box have no preview
+				}
+				return {
+					mid: chat.mid,
+					name: chat.name,
+					type: String(chat.raw?.type ?? ""),
+					lastText,
+					lastTime,
+					unread: unread.get(chat.mid) ?? 0,
+				};
+			}),
+		);
+		return items.sort((a, b) => b.lastTime - a.lastTime);
 	},
 	"chat.messages": async (params) => {
 		const person = async (mid: string) => {

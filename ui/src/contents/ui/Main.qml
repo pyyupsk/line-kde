@@ -160,14 +160,79 @@ Kirigami.ApplicationWindow {
             model: Core.chats
 
             delegate: Delegates.RoundedItemDelegate {
+                id: chatRow
                 required property var modelData
                 width: ListView.view.width
-                text: modelData.name.length > 0 ? modelData.name : modelData.mid
-                icon.name: modelData.type === "ROOM" ? "system-users" : "user-group-new"
+
+                contentItem: RowLayout {
+                    spacing: Kirigami.Units.largeSpacing
+
+                    Rectangle {
+                        implicitWidth: Kirigami.Units.gridUnit * 2.5
+                        implicitHeight: implicitWidth
+                        radius: width / 2
+                        color: Kirigami.Theme.alternateBackgroundColor
+
+                        QQC2.Label {
+                            anchors.centerIn: parent
+                            text: chatRow.modelData.name.charAt(0).toUpperCase()
+                            font.bold: true
+                        }
+                    }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 0
+
+                        QQC2.Label {
+                            Layout.fillWidth: true
+                            text: chatRow.modelData.name.length > 0 ? chatRow.modelData.name : chatRow.modelData.mid
+                            font.bold: true
+                            elide: Text.ElideRight
+                        }
+
+                        QQC2.Label {
+                            Layout.fillWidth: true
+                            text: chatRow.modelData.lastText
+                            textFormat: Text.PlainText
+                            opacity: 0.65
+                            elide: Text.ElideRight
+                        }
+                    }
+
+                    ColumnLayout {
+                        spacing: 0
+
+                        QQC2.Label {
+                            Layout.alignment: Qt.AlignRight
+                            text: chatRow.modelData.lastTime > 0 ? Qt.formatTime(new Date(chatRow.modelData.lastTime), "HH:mm") : ""
+                            font: Kirigami.Theme.smallFont
+                            opacity: 0.6
+                        }
+
+                        Rectangle {
+                            Layout.alignment: Qt.AlignRight
+                            visible: chatRow.modelData.unread > 0
+                            implicitWidth: unreadLabel.implicitWidth + Kirigami.Units.smallSpacing * 2
+                            implicitHeight: unreadLabel.implicitHeight + Kirigami.Units.smallSpacing
+                            radius: height / 2
+                            color: "#06c755"
+
+                            QQC2.Label {
+                                id: unreadLabel
+                                anchors.centerIn: parent
+                                text: chatRow.modelData.unread
+                                color: "#ffffff"
+                                font: Kirigami.Theme.smallFont
+                            }
+                        }
+                    }
+                }
+
                 onClicked: {
-                    Core.openChat(modelData.mid);
+                    Core.openChat(chatRow.modelData.mid);
                     root.pageStack.push(chatComponent, {
-                        title: modelData.name
+                        title: chatRow.modelData.name
                     });
                 }
             }
