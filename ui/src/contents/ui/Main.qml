@@ -93,6 +93,80 @@ Kirigami.ApplicationWindow {
     pageStack.initialPage: page
 
     Component {
+        id: settingsComponent
+
+        Kirigami.ScrollablePage {
+            title: i18n("Settings")
+
+            ColumnLayout {
+                spacing: 0
+
+                Delegates.RoundedItemDelegate {
+                    Layout.fillWidth: true
+                    text: i18n("Language")
+                    icon.name: "set-language"
+                    contentItem: RowLayout {
+                        spacing: lds.gap
+
+                        Kirigami.Icon {
+                            source: "set-language"
+                            implicitWidth: Kirigami.Units.iconSizes.smallMedium
+                            implicitHeight: implicitWidth
+                        }
+
+                        QQC2.Label {
+                            Layout.fillWidth: true
+                            text: i18n("Language")
+                            color: lds.text
+                            font.pointSize: lds.bodySize
+                        }
+
+                        QQC2.Label {
+                            text: i18n("English")
+                            color: lds.textTertiary
+                            font.pointSize: lds.bodySize
+                        }
+                    }
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    implicitHeight: 1
+                    color: lds.line
+                }
+
+                Delegates.RoundedItemDelegate {
+                    Layout.fillWidth: true
+                    onClicked: root.pageStack.pushDialogLayer(Qt.resolvedUrl("About.qml"))
+
+                    contentItem: RowLayout {
+                        spacing: lds.gap
+
+                        Kirigami.Icon {
+                            source: "help-about"
+                            implicitWidth: Kirigami.Units.iconSizes.smallMedium
+                            implicitHeight: implicitWidth
+                        }
+
+                        QQC2.Label {
+                            Layout.fillWidth: true
+                            text: i18n("About LINE for KDE")
+                            color: lds.text
+                            font.pointSize: lds.bodySize
+                        }
+
+                        Kirigami.Icon {
+                            source: "arrow-right"
+                            implicitWidth: Kirigami.Units.iconSizes.small
+                            implicitHeight: implicitWidth
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
         id: chatComponent
 
         Kirigami.ScrollablePage {
@@ -244,6 +318,19 @@ Kirigami.ApplicationWindow {
         id: page
 
         title: i18n("LINE for KDE")
+
+        actions: [
+            Kirigami.Action {
+                text: i18n("Settings")
+                icon.name: "settings-configure"
+                onTriggered: root.pageStack.push(settingsComponent, { title: i18n("Settings") })
+            },
+            Kirigami.Action {
+                text: i18n("About")
+                icon.name: "help-about"
+                onTriggered: root.pageStack.pushDialogLayer(Qt.resolvedUrl("About.qml"))
+            }
+        ]
 
         Component.onCompleted: Core.start()
 
