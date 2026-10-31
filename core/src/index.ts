@@ -26,9 +26,12 @@ const storage = new FileStorage(SESSION);
 const init = { device: "DESKTOPMAC" as const, storage };
 
 let client: Client | null = null;
+let selfMid = "";
+const chatCache = new Map<string, Awaited<ReturnType<Client["fetchJoinedChats"]>>[number]>();
 
 const profile = async () => {
 	const me = await client!.getMyProfile();
+	selfMid = me.mid;
 	return { name: me.displayName, mid: me.mid };
 };
 
@@ -58,22 +61,36 @@ const auth = async () => {
 	return profile();
 };
 
-const methods: Record<string, () => Promise<unknown>> = {
+const methods: Record<string, (params?: Record<string, unknown>) => Promise<unknown>> = {
 	"auth.start": auth,
 	"chats.list": async () => {
 		if (!client) throw new Error("not signed in");
 		const chats = await client.fetchJoinedChats();
+		chatCache.clear();
+		for (const chat of chats) chatCache.set(chat.mid, chat);
 		return chats.map((chat) => ({ mid: chat.mid, name: chat.name, type: String(chat.raw?.type ?? "") }));
+	},
+	"chat.messages": async (params) => {
+		if (!client) throw new Error("not signed in");
+		const mid = String(params?.mid);
+		const chat = chatCache.get(mid) ?? (await client.getChat(mid));
+		const messages = await chat.fetchMessages(30);
+		return messages.map((message) => ({
+			id: String(message.raw.id),
+			text: message.raw.text ?? "",
+			from: message.from?.id ?? "",
+			mine: (message.from?.id ?? "") === selfMid,
+		}));
 	},
 };
 
 for await (const line of createInterface({ input: process.stdin })) {
 	if (!line.trim()) continue;
-	const request = JSON.parse(line) as { id?: number; method?: string };
+	const request = JSON.parse(line) as { id?: number; method?: string; params?: Record<string, unknown> };
 	const handler = request.method ? methods[request.method] : undefined;
 	try {
 		if (!handler) throw new Error(`unknown method: ${request.method}`);
-		send({ id: request.id, result: await handler() });
+		send({ id: request.id, result: await handler(request.params) });
 	} catch (error) {
 		send({ id: request.id, error: { message: String((error as Error)?.message ?? error) } });
 	}

@@ -57,6 +57,34 @@ Kirigami.ApplicationWindow {
 
     pageStack.initialPage: page
 
+    Component {
+        id: chatComponent
+
+        Kirigami.ScrollablePage {
+            ListView {
+                model: Core.messages
+                clip: true
+
+                delegate: QQC2.Label {
+                    required property var modelData
+                    width: ListView.view.width
+                    text: modelData.text
+                    wrapMode: Text.Wrap
+                    padding: Kirigami.Units.smallSpacing
+                    horizontalAlignment: modelData.mine ? Text.AlignRight : Text.AlignLeft
+                }
+            }
+
+            Kirigami.PlaceholderMessage {
+                anchors.centerIn: parent
+                width: parent.width - Kirigami.Units.gridUnit * 4
+                visible: Core.messages.length === 0
+                icon.name: Core.chatError.length > 0 ? "dialog-error" : "mail-message"
+                text: Core.chatError.length > 0 ? Core.chatError : i18n("No messages yet")
+            }
+        }
+    }
+
     Kirigami.Page {
         id: page
 
@@ -75,7 +103,12 @@ Kirigami.ApplicationWindow {
                 width: ListView.view.width
                 text: modelData.name.length > 0 ? modelData.name : modelData.mid
                 icon.name: modelData.type === "ROOM" ? "system-users" : "user-group-new"
-                onClicked: console.log("open", modelData.mid)
+                onClicked: {
+                    Core.openChat(modelData.mid);
+                    root.pageStack.push(chatComponent, {
+                        title: modelData.name
+                    });
+                }
             }
         }
 

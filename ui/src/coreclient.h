@@ -17,6 +17,8 @@ class CoreClient : public QObject
     Q_PROPERTY(QString userName READ userName NOTIFY changed)
     Q_PROPERTY(QString errorText READ errorText NOTIFY changed)
     Q_PROPERTY(QVariantList chats READ chats NOTIFY chatsChanged)
+    Q_PROPERTY(QVariantList messages READ messages NOTIFY messagesChanged)
+    Q_PROPERTY(QString chatError READ chatError NOTIFY messagesChanged)
 
 public:
     explicit CoreClient(QObject *parent = nullptr);
@@ -27,13 +29,17 @@ public:
     QString userName() const { return m_userName; }
     QString errorText() const { return m_error; }
     QVariantList chats() const { return m_chats; }
+    QVariantList messages() const { return m_messages; }
+    QString chatError() const { return m_chatError; }
 
     Q_INVOKABLE void start();
     Q_INVOKABLE void listChats();
+    Q_INVOKABLE void openChat(const QString &mid);
 
 Q_SIGNALS:
     void changed();
     void chatsChanged();
+    void messagesChanged();
 
 private:
     void readOutput();
@@ -44,6 +50,8 @@ private:
     QProcess m_process;
     QByteArray m_buffer;
     QVariantList m_chats;
+    QVariantList m_messages;
+    QString m_chatError;
     QString m_status = QStringLiteral("idle");
     QString m_qrSource;
     QString m_pincode;

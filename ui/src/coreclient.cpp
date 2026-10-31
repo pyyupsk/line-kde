@@ -8,6 +8,7 @@ namespace
 {
     constexpr int AuthRequest = 1;
     constexpr int ChatsRequest = 2;
+    constexpr int MessagesRequest = 3;
 }
 
 CoreClient::CoreClient(QObject *parent)
@@ -48,6 +49,25 @@ void CoreClient::listChats()
         return;
     }
     m_process.write(QByteArrayLiteral("{\"id\":2,\"method\":\"chats.list\"}\n"));
+}
+
+void CoreClient::openChat(const QString &mid)
+{
+    if (m_process.state() == QProcess::NotRunning)
+    {
+        return;
+    }
+    m_messages.clear();
+    m_chatError.clear();
+    Q_EMIT messagesChanged();
+
+    QJsonObject params;
+    params.insert(QStringLiteral("mid"), mid);
+    QJsonObject request;
+    request.insert(QStringLiteral("id"), MessagesRequest);
+    request.insert(QStringLiteral("method"), QStringLiteral("chat.messages"));
+    request.insert(QStringLiteral("params"), params);
+    m_process.write(QJsonDocument(request).toJson(QJsonDocument::Compact) + '\n');
 }
 
 void CoreClient::readOutput()
@@ -99,13 +119,32 @@ void CoreClient::handle(const QJsonObject &message)
     }
 
     const QJsonObject error = message.value(QStringLiteral("error")).toObject();
+    const int id = message.value(QStringLiteral("id")).toInt();
     if (!error.isEmpty())
     {
+        if (id == MessagesRequest)
+        {
+            m_chatError = error.value(QStringLiteral("message")).toString();
+            Q_EMIT messagesChanged();
+            return;
+        }
         fail(error.value(QStringLiteral("message")).toString());
         return;
     }
 
-    if (message.value(QStringLiteral("id")).toInt() == ChatsRequest)
+    if (id == MessagesRequest)
+    {
+        m_messages.clear();
+        const QJsonArray messages = message.value(QStringLiteral("result")).toArray();
+        for (const QJsonValue &entry : messages)
+        {
+            m_messages.append(entry.toObject().toVariantMap());
+        }
+        Q_EMIT messagesChanged();
+        return;
+    }
+
+    if (id == ChatsRequest)
     {
         m_chats.clear();
         const QJsonArray chats = message.value(QStringLiteral("result")).toArray();
