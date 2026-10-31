@@ -323,7 +323,7 @@ Kirigami.ApplicationWindow {
             Kirigami.Action {
                 text: i18n("Settings")
                 icon.name: "settings-configure"
-                onTriggered: root.pageStack.push(settingsComponent, { title: i18n("Settings") })
+                onTriggered: root.pageStack.pushDialogLayer(settingsComponent, { title: i18n("Settings") })
             },
             Kirigami.Action {
                 text: i18n("About")
