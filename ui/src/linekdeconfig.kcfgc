@@ -1,0 +1,10 @@
+# SPDX-FileCopyrightText: 2026 pyyupsk <>
+# SPDX-License-Identifier: LGPL-2.0-or-later
+
+File=linekdeconfig.kcfg
+ClassName=linekdeConfig
+Mutators=true
+DefaultValueGetters=true
+GenerateProperties=true
+ParentInConstructor=true
+Singleton=true

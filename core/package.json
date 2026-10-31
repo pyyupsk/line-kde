@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "line-kde-core",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@evex/linejs": "npm:@jsr/evex__linejs@3.5.0"
+  },
+  "scripts": {
+    "start": "node src/index.ts"
+  }
+}
