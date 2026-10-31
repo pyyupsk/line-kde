@@ -6,7 +6,7 @@ import { loginWithAuthToken, loginWithQR, type Client } from "@evex/linejs";
 import { FileStorage } from "@evex/linejs/storage";
 
 const DATA_DIR = join(process.env.XDG_DATA_HOME ?? `${process.env.HOME}/.local/share`, "line-kde");
-const SESSION = join(DATA_DIR, "session.json");
+const SESSION = process.env.LINE_KDE_SESSION ?? join(DATA_DIR, "session.json");
 const TOKEN_KEY = "authToken";
 
 mkdirSync(DATA_DIR, { recursive: true, mode: 0o700 });
@@ -31,6 +31,16 @@ let selfName = "";
 const people = new Map<string, { name: string; picture: string }>();
 const chatCache = new Map<string, Awaited<ReturnType<Client["fetchJoinedChats"]>>[number]>();
 
+let tokenSaverAttached = false;
+
+const keepTokenFresh = () => {
+	if (!client || tokenSaverAttached) return;
+	tokenSaverAttached = true;
+	client.base.on("update:authtoken", (token: string) => {
+		if (token) void storage.set(TOKEN_KEY, token).then(() => send({ method: "session.saved" }));
+	});
+};
+
 const profile = async () => {
 	const me = await client!.getMyProfile();
 	selfMid = me.mid;
@@ -45,9 +55,12 @@ const auth = async () => {
 	if (typeof saved === "string" && saved) {
 		try {
 			client = await loginWithAuthToken(saved, init);
+			keepTokenFresh();
 			return profile();
 		} catch {
 			// an expired token falls through to the QR login
+			await storage.delete(TOKEN_KEY);
+			send({ method: "session.saved" });
 		}
 	}
 	client = await loginWithQR(
@@ -62,6 +75,8 @@ const auth = async () => {
 		init,
 	);
 	await storage.set(TOKEN_KEY, client.authToken);
+	send({ method: "session.saved" });
+	keepTokenFresh();
 	return profile();
 };
 
@@ -69,6 +84,7 @@ const methods: Record<string, (params?: Record<string, unknown>) => Promise<unkn
 	"auth.start": auth,
 	"auth.logout": async () => {
 		client = null;
+		tokenSaverAttached = false;
 		selfMid = "";
 		selfName = "";
 		people.clear();

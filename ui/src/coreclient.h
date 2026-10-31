@@ -48,6 +48,8 @@ Q_SIGNALS:
 
 private:
     void readOutput();
+    void restoreSession();
+    void persistSession();
     void handle(const QJsonObject &message);
     void setStatus(const QString &status);
     void fail(const QString &message);
@@ -58,6 +60,7 @@ private:
     QVariantList m_messages;
     QString m_chatError;
     int m_qrSerial = 0;
+    QString m_sessionPath;
     QString m_currentChat;
     QString m_status = QStringLiteral("idle");
     QString m_qrSource;

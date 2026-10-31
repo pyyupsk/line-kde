@@ -1,8 +1,12 @@
 #include "coreclient.h"
 
+#include <QDir>
+#include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonValue>
+#include <QProcessEnvironment>
+#include <QStandardPaths>
 
 namespace
 {
@@ -34,6 +38,13 @@ void CoreClient::start()
         m_qrSource.clear();
         m_pincode.clear();
         setStatus(QStringLiteral("starting"));
+        restoreSession();
+        QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+        if (!m_sessionPath.isEmpty())
+        {
+            env.insert(QStringLiteral("LINE_KDE_SESSION"), m_sessionPath);
+        }
+        m_process.setProcessEnvironment(env);
         m_process.start(QStringLiteral("node"), {QStringLiteral(LINE_KDE_CORE)});
     }
     if (!m_process.waitForStarted(5000))
@@ -111,6 +122,77 @@ void CoreClient::sendMessage(const QString &text)
     m_process.write(QJsonDocument(request).toJson(QJsonDocument::Compact) + '\n');
 }
 
+namespace
+{
+const QString WalletFolder = QStringLiteral("line-kde");
+const QString WalletEntry = QStringLiteral("session");
+
+QByteArray walletRead()
+{
+    QProcess query;
+    query.start(QStringLiteral("kwallet-query"),
+                {QStringLiteral("-f"), WalletFolder, QStringLiteral("-r"), WalletEntry, QStringLiteral("kdewallet")});
+    if (!query.waitForFinished(5000))
+    {
+        return {};
+    }
+    return query.readAllStandardOutput().trimmed();
+}
+
+bool walletWrite(const QByteArray &blob)
+{
+    QProcess query;
+    query.start(QStringLiteral("kwallet-query"),
+                {QStringLiteral("-f"), WalletFolder, QStringLiteral("-w"), WalletEntry, QStringLiteral("kdewallet")});
+    if (!query.waitForStarted(5000))
+    {
+        return false;
+    }
+    query.write(blob);
+    query.closeWriteChannel();
+    return query.waitForFinished(5000) && query.exitCode() == 0;
+}
+}
+
+void CoreClient::restoreSession()
+{
+    m_sessionPath.clear();
+
+    const QByteArray blob = walletRead();
+    if (blob.isEmpty() || !blob.startsWith('{') || blob == "{}")
+    {
+        return;
+    }
+
+    const QString dir = QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation) + QStringLiteral("/line-kde");
+    if (dir.isEmpty() || !QDir().mkpath(dir))
+    {
+        return;
+    }
+    m_sessionPath = dir + QStringLiteral("/session.json");
+
+    QFile file(m_sessionPath);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+    {
+        file.setPermissions(QFileDevice::ReadOwner | QFileDevice::WriteOwner);
+        file.write(blob);
+    }
+}
+
+void CoreClient::persistSession()
+{
+    if (m_sessionPath.isEmpty())
+    {
+        return;
+    }
+    QFile file(m_sessionPath);
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        return;
+    }
+    walletWrite(file.readAll());
+}
+
 void CoreClient::readOutput()
 {
     m_buffer += m_process.readAllStandardOutput();
@@ -155,6 +237,12 @@ void CoreClient::handle(const QJsonObject &message)
         return;
     }
 
+    if (message.value(QStringLiteral("method")).toString() == QStringLiteral("session.saved"))
+    {
+        persistSession();
+        return;
+    }
+
     if (!message.contains(QStringLiteral("id")))
     {
         return;
@@ -188,6 +276,11 @@ void CoreClient::handle(const QJsonObject &message)
 
     if (id == LogoutRequest)
     {
+        walletWrite(QByteArrayLiteral("{}"));
+        if (!m_sessionPath.isEmpty())
+        {
+            QFile::remove(m_sessionPath);
+        }
         m_chats.clear();
         m_messages.clear();
         m_chatError.clear();
