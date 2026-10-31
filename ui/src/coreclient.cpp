@@ -1,7 +1,14 @@
 #include "coreclient.h"
 
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonValue>
+
+namespace
+{
+    constexpr int AuthRequest = 1;
+    constexpr int ChatsRequest = 2;
+}
 
 CoreClient::CoreClient(QObject *parent)
     : QObject(parent)
@@ -32,6 +39,15 @@ void CoreClient::start()
         return;
     }
     m_process.write(QByteArrayLiteral("{\"id\":1,\"method\":\"auth.start\"}\n"));
+}
+
+void CoreClient::listChats()
+{
+    if (m_process.state() == QProcess::NotRunning)
+    {
+        return;
+    }
+    m_process.write(QByteArrayLiteral("{\"id\":2,\"method\":\"chats.list\"}\n"));
 }
 
 void CoreClient::readOutput()
@@ -89,8 +105,21 @@ void CoreClient::handle(const QJsonObject &message)
         return;
     }
 
+    if (message.value(QStringLiteral("id")).toInt() == ChatsRequest)
+    {
+        m_chats.clear();
+        const QJsonArray chats = message.value(QStringLiteral("result")).toArray();
+        for (const QJsonValue &chat : chats)
+        {
+            m_chats.append(chat.toObject().toVariantMap());
+        }
+        Q_EMIT chatsChanged();
+        return;
+    }
+
     m_userName = message.value(QStringLiteral("result")).toObject().value(QStringLiteral("name")).toString();
     setStatus(QStringLiteral("signedIn"));
+    listChats();
 }
 
 void CoreClient::setStatus(const QString &status)

@@ -60,6 +60,11 @@ const auth = async () => {
 
 const methods: Record<string, () => Promise<unknown>> = {
 	"auth.start": auth,
+	"chats.list": async () => {
+		if (!client) throw new Error("not signed in");
+		const chats = await client.fetchJoinedChats();
+		return chats.map((chat) => ({ mid: chat.mid, name: chat.name, type: String(chat.raw?.type ?? "") }));
+	},
 };
 
 for await (const line of createInterface({ input: process.stdin })) {

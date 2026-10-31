@@ -6,6 +6,8 @@
 #include <QProcess>
 #include <QString>
 
+#include <QVariantList>
+
 class CoreClient : public QObject
 {
     Q_OBJECT
@@ -14,6 +16,7 @@ class CoreClient : public QObject
     Q_PROPERTY(QString pincode READ pincode NOTIFY changed)
     Q_PROPERTY(QString userName READ userName NOTIFY changed)
     Q_PROPERTY(QString errorText READ errorText NOTIFY changed)
+    Q_PROPERTY(QVariantList chats READ chats NOTIFY chatsChanged)
 
 public:
     explicit CoreClient(QObject *parent = nullptr);
@@ -23,11 +26,14 @@ public:
     QString pincode() const { return m_pincode; }
     QString userName() const { return m_userName; }
     QString errorText() const { return m_error; }
+    QVariantList chats() const { return m_chats; }
 
     Q_INVOKABLE void start();
+    Q_INVOKABLE void listChats();
 
 Q_SIGNALS:
     void changed();
+    void chatsChanged();
 
 private:
     void readOutput();
@@ -37,6 +43,7 @@ private:
 
     QProcess m_process;
     QByteArray m_buffer;
+    QVariantList m_chats;
     QString m_status = QStringLiteral("idle");
     QString m_qrSource;
     QString m_pincode;

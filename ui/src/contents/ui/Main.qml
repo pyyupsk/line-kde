@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
+import org.kde.kirigamiaddons.delegates as Delegates
 import com.pyyupsk.linekde
 
 Kirigami.ApplicationWindow {
@@ -63,8 +64,24 @@ Kirigami.ApplicationWindow {
 
         Component.onCompleted: Core.start()
 
+        ListView {
+            anchors.fill: parent
+            visible: Core.status === "signedIn"
+            clip: true
+            model: Core.chats
+
+            delegate: Delegates.RoundedItemDelegate {
+                required property var modelData
+                width: ListView.view.width
+                text: modelData.name.length > 0 ? modelData.name : modelData.mid
+                icon.name: modelData.type === "ROOM" ? "system-users" : "user-group-new"
+                onClicked: console.log("open", modelData.mid)
+            }
+        }
+
         ColumnLayout {
             anchors.centerIn: parent
+            visible: Core.status !== "signedIn"
             spacing: Kirigami.Units.largeSpacing
 
             Image {
