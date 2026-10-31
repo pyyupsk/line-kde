@@ -73,6 +73,18 @@ void CoreClient::openChat(const QString &mid)
     m_process.write(QJsonDocument(request).toJson(QJsonDocument::Compact) + '\n');
 }
 
+void CoreClient::restartLogin()
+{
+    if (m_process.state() != QProcess::NotRunning)
+    {
+        m_process.kill();
+        m_process.waitForFinished(2000);
+    }
+    m_qrSource.clear();
+    m_pincode.clear();
+    start();
+}
+
 void CoreClient::signOut()
 {
     if (m_process.state() == QProcess::NotRunning)
@@ -130,6 +142,7 @@ void CoreClient::handle(const QJsonObject &message)
     if (qr.isString())
     {
         m_qrSource = QStringLiteral("data:image/png;base64,") + qr.toString();
+        ++m_qrSerial;
         setStatus(QStringLiteral("waiting"));
         return;
     }

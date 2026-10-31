@@ -249,6 +249,28 @@ Kirigami.ApplicationWindow {
 
         Component.onCompleted: Core.start()
 
+        property int qrSecondsLeft: 0
+        property bool qrExpired: false
+
+        onQrSecondsLeftChanged: qrExpired = qrSecondsLeft <= 0 && Core.status === "waiting"
+
+        Connections {
+            target: Core
+            function onChanged() {
+                if (Core.status === "waiting") {
+                    page.qrSecondsLeft = 120
+                    page.qrExpired = false
+                }
+            }
+        }
+
+        Timer {
+            interval: 1000
+            repeat: true
+            running: Core.status === "waiting" && page.qrSecondsLeft > 0
+            onTriggered: page.qrSecondsLeft -= 1
+        }
+
         ListView {
             anchors.fill: parent
             visible: Core.status === "signedIn"
@@ -439,7 +461,11 @@ Kirigami.ApplicationWindow {
                             case "starting":
                                 return i18n("Starting…");
                             case "waiting":
-                                return Core.pincode.length > 0 ? i18n("Enter the PIN %1 on your phone", Core.pincode) : i18n("Open LINE on your phone, tap the QR code icon in the search box, and scan this code");
+                                if (page.qrExpired)
+                                    return i18n("This QR code is no longer valid. Please update the QR code.");
+                                if (Core.pincode.length > 0)
+                                    return i18n("Enter the PIN %1 on your phone", Core.pincode);
+                                return i18n("Open LINE on your phone, tap the QR code icon in the search box, and scan this code");
                             default:
                                 return i18n("Sign in with LINE on your phone");
                             }
@@ -449,6 +475,7 @@ Kirigami.ApplicationWindow {
                     Rectangle {
                         Layout.alignment: Qt.AlignHCenter
                         visible: Core.status === "waiting"
+                        opacity: page.qrExpired ? 0.25 : 1
                         implicitWidth: Kirigami.Units.gridUnit * 11
                         implicitHeight: implicitWidth
                         radius: Lds.radius
@@ -465,10 +492,19 @@ Kirigami.ApplicationWindow {
 
                     QQC2.Button {
                         Layout.alignment: Qt.AlignHCenter
-                        visible: Core.status === "idle" || Core.status === "error"
-                        text: Core.status === "error" ? i18n("Try Again") : i18n("Sign In")
+                        visible: Core.status === "idle" || Core.status === "error" || page.qrExpired
+                        text: page.qrExpired ? i18n("Update") : (Core.status === "error" ? i18n("Try Again") : i18n("Sign In"))
                         font.pointSize: Lds.bodySize
-                        onClicked: Core.start()
+                        onClicked: Core.restartLogin()
+                    }
+
+                    QQC2.Label {
+                        Layout.fillWidth: true
+                        visible: Core.status === "waiting" && !page.qrExpired
+                        text: i18n("Valid for %1s", page.qrSecondsLeft)
+                        color: Lds.textTertiary
+                        font.pointSize: Lds.smallSize
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
             }
