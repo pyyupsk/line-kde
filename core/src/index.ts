@@ -52,9 +52,15 @@ const profile = async () => {
 const auth = async () => {
 	if (client) return profile();
 	const saved = await storage.get(TOKEN_KEY);
-	if (typeof saved === "string" && saved) {
+	const expiresAt = Number(await storage.get("expire")) * 1000;
+	const tokenUsable = typeof saved === "string" && saved.length > 0 && (!expiresAt || Date.now() < expiresAt);
+	if (typeof saved === "string" && saved && !tokenUsable) {
+		await storage.delete(TOKEN_KEY);
+		send({ method: "session.saved" });
+	}
+	if (tokenUsable) {
 		try {
-			client = await loginWithAuthToken(saved, init);
+			client = await loginWithAuthToken(saved as string, init);
 			keepTokenFresh();
 			return profile();
 		} catch {
