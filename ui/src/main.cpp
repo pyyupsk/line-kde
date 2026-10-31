@@ -17,6 +17,7 @@
 #include <QUrl>
 
 #include "app.h"
+#include "coreclient.h"
 #include "version-linekde.h"
 #include <KAboutData>
 #include <KLocalizedQmlContext>
@@ -86,6 +87,9 @@ int main(int argc, char *argv[])
     auto config = linekdeConfig::self();
 
     qmlRegisterSingletonInstance("com.pyyupsk.linekde.private", 1, 0, "Config", config);
+
+    CoreClient core;
+    engine.rootContext()->setContextProperty(u"Core"_s, &core);
 
     KLocalization::setupLocalizedContext(&engine);
     engine.loadFromModule("com.pyyupsk.linekde", u"Main");

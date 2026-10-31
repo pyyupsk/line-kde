@@ -1,6 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-// SPDX-FileCopyrightText: 2026 pyyupsk <>
-
 import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
@@ -24,30 +21,26 @@ Kirigami.ApplicationWindow {
 
     Component.onCompleted: App.restoreWindowGeometry(root)
 
-    // This timer allows to batch update the window size change to reduce
-    // the io load and also work around the fact that x/y/width/height are
-    // changed when loading the page and overwrite the saved geometry from
-    // the previous session.
+    // batching stops page load from overwriting the restored geometry
     Timer {
         id: saveWindowGeometryTimer
         interval: 1000
         onTriggered: App.saveWindowGeometry(root)
     }
 
-    property int counter: 0
-
     globalDrawer: Kirigami.GlobalDrawer {
         isMenu: !Kirigami.Settings.isMobile
         actions: [
             Kirigami.Action {
-                text: i18n("Plus One")
-                icon.name: "list-add"
-                onTriggered: root.counter += 1
+                text: i18n("Sign In")
+                icon.name: "system-users"
+                enabled: Core.status !== "signedIn"
+                onTriggered: Core.start()
             },
             Kirigami.Action {
                 text: i18n("About line-kde")
                 icon.name: "help-about"
-                onTriggered: root.pageStack.pushDialogLayer("qrc:/qt/qml/org/kde/line-kde/contents/ui/About.qml")
+                onTriggered: root.pageStack.pushDialogLayer(Qt.resolvedUrl("About.qml"))
             },
             Kirigami.Action {
                 text: i18n("Quit")
@@ -66,31 +59,48 @@ Kirigami.ApplicationWindow {
     Kirigami.Page {
         id: page
 
-        title: i18n("Main Page")
+        title: i18n("line-kde")
 
-        actions: [
-            Kirigami.Action {
-                text: i18n("Plus One")
-                icon.name: "list-add"
-                tooltip: i18n("Add one to the counter")
-                onTriggered: root.counter += 1
-            }
-        ]
+        Component.onCompleted: Core.start()
 
         ColumnLayout {
-            width: page.width
-
             anchors.centerIn: parent
+            spacing: Kirigami.Units.largeSpacing
+
+            Image {
+                Layout.alignment: Qt.AlignHCenter
+                visible: Core.status === "waiting"
+                source: Core.qrSource
+                sourceSize.width: Kirigami.Units.gridUnit * 10
+                fillMode: Image.PreserveAspectFit
+                smooth: false
+            }
 
             Kirigami.Heading {
-                Layout.alignment: Qt.AlignCenter
-                text: root.counter === 0 ? i18n("Hello, World!") : root.counter
+                Layout.alignment: Qt.AlignHCenter
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.WordWrap
+                text: {
+                    switch (Core.status) {
+                    case "signedIn":
+                        return i18n("Signed in as %1", Core.userName);
+                    case "waiting":
+                        return Core.pincode.length > 0 ? i18n("Enter the PIN %1 on your phone", Core.pincode) : i18n("Scan this code with LINE");
+                    case "error":
+                        return Core.errorText;
+                    case "starting":
+                        return i18n("Starting…");
+                    default:
+                        return i18n("Sign in to LINE");
+                    }
+                }
             }
 
             QQC2.Button {
                 Layout.alignment: Qt.AlignHCenter
-                text: i18n("+ 1")
-                onClicked: root.counter += 1
+                visible: Core.status === "idle" || Core.status === "error"
+                text: i18n("Sign In")
+                onClicked: Core.start()
             }
         }
     }

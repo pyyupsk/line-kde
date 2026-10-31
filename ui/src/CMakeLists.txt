@@ -14,6 +14,11 @@ qt_add_qml_module(linekde_static
 
 target_sources(linekde_static PUBLIC
     app.cpp
+    coreclient.cpp
+)
+
+target_compile_definitions(linekde_static PUBLIC
+    LINE_KDE_CORE="${CMAKE_CURRENT_SOURCE_DIR}/../../core/src/index.ts"
 )
 
 target_link_libraries(linekde_static PUBLIC
