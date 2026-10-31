@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
+import com.pyyupsk.linekde
 
 Window {
     id: aboutWindow
@@ -12,25 +13,30 @@ Window {
     height: Kirigami.Units.gridUnit * 22
     flags: Qt.Dialog
 
+    Component.onCompleted: App.restoreWindowGeometry(aboutWindow, "about")
+    onClosing: App.saveWindowGeometry(aboutWindow, "about")
+    onWidthChanged: geometryTimer.restart()
+    onHeightChanged: geometryTimer.restart()
+    onXChanged: geometryTimer.restart()
+    onYChanged: geometryTimer.restart()
+
+    Timer {
+        id: geometryTimer
+        interval: 1000
+        onTriggered: App.saveWindowGeometry(aboutWindow, "about")
+    }
+
     ColumnLayout {
+        id: layout
         anchors.centerIn: parent
         width: Kirigami.Units.gridUnit * 16
         spacing: Lds.gap
 
-        Rectangle {
+        Image {
             Layout.alignment: Qt.AlignHCenter
-            implicitWidth: Kirigami.Units.gridUnit * 4
-            implicitHeight: implicitWidth
-            radius: Lds.radius
-            color: Lds.green
-
-            QQC2.Label {
-                anchors.centerIn: parent
-                text: "LINE"
-                color: "#ffffff"
-                font.pointSize: Lds.bodySize
-                font.bold: true
-            }
+            source: Qt.resolvedUrl("assets/line-logo.svg")
+            sourceSize.width: Kirigami.Units.gridUnit * 4
+            fillMode: Image.PreserveAspectFit
         }
 
         QQC2.Label {

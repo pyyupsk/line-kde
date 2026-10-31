@@ -370,13 +370,11 @@ Kirigami.ApplicationWindow {
             visible: Core.status !== "signedIn"
             spacing: Lds.gap
 
-            QQC2.Label {
-                Layout.fillWidth: true
-                text: i18n("LINE")
-                color: Lds.green
-                font.pointSize: Lds.displaySize
-                font.weight: Font.Heavy
-                horizontalAlignment: Text.AlignHCenter
+            Image {
+                Layout.alignment: Qt.AlignHCenter
+                source: Qt.resolvedUrl("assets/line-logo.svg")
+                sourceSize.width: Kirigami.Units.gridUnit * 3
+                fillMode: Image.PreserveAspectFit
             }
 
             QQC2.Label {

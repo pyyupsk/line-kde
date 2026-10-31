@@ -2,17 +2,31 @@ import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
+import com.pyyupsk.linekde
 
 Window {
     id: settingsWindow
 
-    signal aboutRequested()
+    signal aboutRequested
 
     title: i18n("Settings")
     color: Lds.bg
     width: Kirigami.Units.gridUnit * 26
     height: Kirigami.Units.gridUnit * 20
     flags: Qt.Dialog
+
+    Component.onCompleted: App.restoreWindowGeometry(settingsWindow, "settings")
+    onClosing: App.saveWindowGeometry(settingsWindow, "settings")
+    onWidthChanged: geometryTimer.restart()
+    onHeightChanged: geometryTimer.restart()
+    onXChanged: geometryTimer.restart()
+    onYChanged: geometryTimer.restart()
+
+    Timer {
+        id: geometryTimer
+        interval: 1000
+        onTriggered: App.saveWindowGeometry(settingsWindow, "settings")
+    }
 
     ColumnLayout {
         anchors.fill: parent

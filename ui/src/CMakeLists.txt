@@ -14,6 +14,8 @@ qt_add_qml_module(linekde_static
         contents/ui/Main.qml
         contents/ui/About.qml
         contents/ui/Settings.qml
+    RESOURCES
+        contents/ui/assets/line-logo.svg
 )
 
 
