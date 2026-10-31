@@ -10,7 +10,10 @@
 #include <QApplication>
 #endif
 
+#include <QDir>
 #include <QIcon>
+#include <QLockFile>
+#include <QStandardPaths>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickStyle>
@@ -57,6 +60,16 @@ int main(int argc, char *argv[])
     font.setPointSize(10);
     app.setFont(font);
 #endif
+
+    const QString runtimeDir = QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation);
+    QDir().mkpath(runtimeDir + QStringLiteral("/line-kde"));
+    QLockFile instanceLock(runtimeDir + QStringLiteral("/line-kde/linekde.lock"));
+    instanceLock.setStaleLockTime(0);
+    if (!instanceLock.tryLock(200))
+    {
+        qWarning("LINE for KDE is already running");
+        return 0;
+    }
 
     KLocalizedString::setApplicationDomain("linekde");
     QCoreApplication::setOrganizationName(u"KDE"_s);
