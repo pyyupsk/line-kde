@@ -366,147 +366,87 @@ Kirigami.ApplicationWindow {
             }
         }
 
-        RowLayout {
-            anchors.fill: parent
+        ColumnLayout {
+            anchors.centerIn: parent
+            width: Kirigami.Units.gridUnit * 15
             visible: Core.status !== "signedIn"
-            spacing: 0
+            spacing: Lds.gap
 
-            Item {
+            QQC2.Label {
                 Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.preferredWidth: 3
+                text: i18n("LINE")
+                color: Lds.green
+                font.pointSize: 26
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+            }
 
-                ColumnLayout {
-                    anchors.centerIn: parent
-                    width: Kirigami.Units.gridUnit * 17
-                    spacing: Lds.gap
+            QQC2.Label {
+                Layout.fillWidth: true
+                text: i18n("QR code login")
+                color: Lds.text
+                font.pointSize: Lds.headingSize
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+            }
 
-                    QQC2.Label {
-                        Layout.fillWidth: true
-                        text: "LINE"
-                        color: Lds.green
-                        font.pointSize: 26
-                        font.bold: true
-                        horizontalAlignment: Text.AlignHCenter
-                    }
-
-                    QQC2.TextField {
-                        Layout.fillWidth: true
-                        enabled: false
-                        placeholderText: i18n("Email address")
-                        font.pointSize: Lds.bodySize
-                    }
-
-                    QQC2.TextField {
-                        Layout.fillWidth: true
-                        enabled: false
-                        placeholderText: i18n("Password")
-                        echoMode: TextInput.Password
-                        font.pointSize: Lds.bodySize
-                    }
-
-                    QQC2.Button {
-                        Layout.fillWidth: true
-                        enabled: false
-                        text: i18n("Log in")
-                        font.pointSize: Lds.bodySize
-                    }
-
-                    QQC2.Label {
-                        Layout.fillWidth: true
-                        horizontalAlignment: Text.AlignHCenter
-                        wrapMode: Text.WordWrap
-                        text: i18n("LINE for KDE signs in with a QR code only, so no password is ever stored")
-                        color: Lds.textTertiary
-                        font.pointSize: Lds.smallSize
+            QQC2.Label {
+                Layout.fillWidth: true
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.WordWrap
+                color: Lds.textSecondary
+                font.pointSize: Lds.smallSize
+                text: {
+                    switch (Core.status) {
+                    case "error":
+                        return Core.errorText;
+                    case "starting":
+                        return i18n("Starting…");
+                    case "waiting":
+                        if (page.qrExpired)
+                            return i18n("This QR code is no longer valid. Please update the QR code.");
+                        if (Core.pincode.length > 0)
+                            return i18n("Enter the PIN %1 on your phone", Core.pincode);
+                        return i18n("Open LINE on your phone, tap the QR code icon in the search box, and scan this code");
+                    default:
+                        return i18n("Sign in with LINE on your phone");
                     }
                 }
             }
 
             Rectangle {
-                Layout.fillHeight: true
-                implicitWidth: 1
-                color: Lds.line
+                Layout.alignment: Qt.AlignHCenter
+                visible: Core.status === "waiting"
+                opacity: page.qrExpired ? 0.25 : 1
+                implicitWidth: Kirigami.Units.gridUnit * 11
+                implicitHeight: implicitWidth
+                radius: Lds.radius
+                color: "#ffffff"
+
+                Image {
+                    anchors.fill: parent
+                    anchors.margins: Lds.gap
+                    source: Core.qrSource
+                    fillMode: Image.PreserveAspectFit
+                    smooth: false
+                }
             }
 
-            Item {
+            QQC2.Label {
                 Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.preferredWidth: 2
+                visible: Core.status === "waiting" && !page.qrExpired
+                text: i18n("Valid for %1s", page.qrSecondsLeft)
+                color: Lds.textTertiary
+                font.pointSize: Lds.smallSize
+                horizontalAlignment: Text.AlignHCenter
+            }
 
-                ColumnLayout {
-                    anchors.centerIn: parent
-                    width: Kirigami.Units.gridUnit * 14
-                    spacing: Lds.gap
-
-                    QQC2.Label {
-                        Layout.fillWidth: true
-                        text: i18n("QR code login")
-                        color: Lds.text
-                        font.pointSize: Lds.headingSize
-                        font.bold: true
-                        horizontalAlignment: Text.AlignHCenter
-                    }
-
-                    QQC2.Label {
-                        Layout.fillWidth: true
-                        horizontalAlignment: Text.AlignHCenter
-                        wrapMode: Text.WordWrap
-                        color: Lds.textSecondary
-                        font.pointSize: Lds.smallSize
-                        text: {
-                            switch (Core.status) {
-                            case "error":
-                                return Core.errorText;
-                            case "starting":
-                                return i18n("Starting…");
-                            case "waiting":
-                                if (page.qrExpired)
-                                    return i18n("This QR code is no longer valid. Please update the QR code.");
-                                if (Core.pincode.length > 0)
-                                    return i18n("Enter the PIN %1 on your phone", Core.pincode);
-                                return i18n("Open LINE on your phone, tap the QR code icon in the search box, and scan this code");
-                            default:
-                                return i18n("Sign in with LINE on your phone");
-                            }
-                        }
-                    }
-
-                    Rectangle {
-                        Layout.alignment: Qt.AlignHCenter
-                        visible: Core.status === "waiting"
-                        opacity: page.qrExpired ? 0.25 : 1
-                        implicitWidth: Kirigami.Units.gridUnit * 11
-                        implicitHeight: implicitWidth
-                        radius: Lds.radius
-                        color: "#ffffff"
-
-                        Image {
-                            anchors.fill: parent
-                            anchors.margins: Lds.gap
-                            source: Core.qrSource
-                            fillMode: Image.PreserveAspectFit
-                            smooth: false
-                        }
-                    }
-
-                    QQC2.Button {
-                        Layout.alignment: Qt.AlignHCenter
-                        visible: Core.status === "idle" || Core.status === "error" || page.qrExpired
-                        text: page.qrExpired ? i18n("Update") : (Core.status === "error" ? i18n("Try Again") : i18n("Sign In"))
-                        font.pointSize: Lds.bodySize
-                        onClicked: Core.restartLogin()
-                    }
-
-                    QQC2.Label {
-                        Layout.fillWidth: true
-                        visible: Core.status === "waiting" && !page.qrExpired
-                        text: i18n("Valid for %1s", page.qrSecondsLeft)
-                        color: Lds.textTertiary
-                        font.pointSize: Lds.smallSize
-                        horizontalAlignment: Text.AlignHCenter
-                    }
-                }
+            QQC2.Button {
+                Layout.alignment: Qt.AlignHCenter
+                visible: Core.status === "idle" || Core.status === "error" || page.qrExpired
+                text: page.qrExpired ? i18n("Update") : (Core.status === "error" ? i18n("Try Again") : i18n("Sign In"))
+                font.pointSize: Lds.bodySize
+                onClicked: Core.restartLogin()
             }
         }
     }
