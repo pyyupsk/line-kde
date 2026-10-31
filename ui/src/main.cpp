@@ -11,7 +11,10 @@
 #endif
 
 #include <QDir>
+#include <QFile>
 #include <QIcon>
+#include <QMenu>
+#include <QQuickWindow>
 #include <QLockFile>
 #include <QStandardPaths>
 #include <QQmlApplicationEngine>
@@ -23,6 +26,8 @@
 #include "coreclient.h"
 #include "version-linekde.h"
 #include <KAboutData>
+#include <KStatusNotifierItem>
+#include <QDBusConnection>
 #include <KLocalizedQmlContext>
 #include <KLocalizedString>
 
@@ -112,6 +117,36 @@ int main(int argc, char *argv[])
     {
         return -1;
     }
+
+    auto *window = qobject_cast<QQuickWindow *>(engine.rootObjects().constFirst());
+    KStatusNotifierItem tray;
+    tray.setIconByName(u"com.pyyupsk.linekde"_s);
+    tray.setToolTipTitle(i18nc("@title", "LINE for KDE"));
+    tray.setStatus(KStatusNotifierItem::Active);
+
+    QMenu *trayMenu = tray.contextMenu();
+    QAction *showAction = trayMenu->addAction(QIcon::fromTheme(u"window-restore"_s), i18n("Show window"));
+    trayMenu->addSeparator();
+    QAction *quitAction = trayMenu->addAction(QIcon::fromTheme(u"application-exit"_s), i18n("Quit"));
+
+    const auto showWindow = [window]
+    {
+        if (!window)
+        {
+            return;
+        }
+        window->show();
+        window->raise();
+        window->requestActivate();
+    };
+    QObject::connect(showAction, &QAction::triggered, window, showWindow);
+    QObject::connect(quitAction, &QAction::triggered, &app, &QCoreApplication::quit);
+    QObject::connect(&tray, &KStatusNotifierItem::activateRequested, window, [window](bool)
+                     {
+        if (window)
+        {
+            window->setVisible(!window->isVisible());
+        } });
 
     return app.exec();
 }

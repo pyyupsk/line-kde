@@ -34,7 +34,7 @@ if (NOT ANDROID)
 endif()
 
 find_package(Qt6 ${QT6_MIN_VERSION} REQUIRED COMPONENTS Core Gui Qml QuickControls2 Svg ${QT_EXTRA_COMPONENTS})
-find_package(KF6 ${KF6_MIN_VERSION} REQUIRED COMPONENTS Kirigami CoreAddons Config I18n)
+find_package(KF6 ${KF6_MIN_VERSION} REQUIRED COMPONENTS Kirigami CoreAddons Config I18n StatusNotifierItem)
 
 qt_policy(SET QTP0001 NEW)
 qt_policy(SET QTP0004 OLD)
@@ -46,6 +46,9 @@ ecm_find_qmlmodule(org.kde.kirigamiaddons.formcard 1.0)
 add_subdirectory(src)
 
 install(FILES com.pyyupsk.linekde.desktop DESTINATION ${KDE_INSTALL_APPDIR})
+install(FILES src/contents/ui/assets/line-logo.svg
+    DESTINATION ${KDE_INSTALL_ICONDIR}/hicolor/scalable/apps
+    RENAME com.pyyupsk.linekde.svg)
 install(FILES com.pyyupsk.linekde.metainfo.xml DESTINATION ${KDE_INSTALL_METAINFODIR})
 ki18n_install(po)
 

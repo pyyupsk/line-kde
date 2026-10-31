@@ -5,7 +5,7 @@ Name=LINE for KDE
 Comment=line-kde Kirigami Application
 Version=1.0
 Exec=linekde
-Icon=applications-development
+Icon=com.pyyupsk.linekde
 Type=Application
 Terminal=false
 # Add an actual main category here (and possibly applicable additional ones)

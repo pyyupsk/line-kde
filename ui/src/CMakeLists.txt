@@ -40,6 +40,7 @@ target_link_libraries(linekde_static PUBLIC
     KF6::CoreAddons
     KF6::ConfigCore
     KF6::ConfigGui
+    KF6::StatusNotifierItem
 )
 target_include_directories(linekde_static PUBLIC ${CMAKE_BINARY_DIR})
 
