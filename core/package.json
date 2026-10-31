@@ -1,12 +1,21 @@
 {
-  "$schema": "https://json.schemastore.org/package.json",
-  "name": "line-kde-core",
-  "private": true,
-  "type": "module",
-  "dependencies": {
-    "@evex/linejs": "npm:@jsr/evex__linejs@3.5.0"
-  },
-  "scripts": {
-    "start": "node src/index.ts"
-  }
+	"$schema": "https://json.schemastore.org/package.json",
+	"name": "line-kde-core",
+	"private": true,
+	"type": "module",
+	"dependencies": {
+		"@evex/linejs": "npm:@jsr/evex__linejs@3.5.0"
+	},
+	"scripts": {
+		"check": "biome check . && tsc -p .",
+		"fmt": "biome check --write .",
+		"lint": "biome lint .",
+		"start": "node src/index.ts",
+		"typecheck": "tsc -p ."
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.6.4",
+		"@types/node": "26.6.6",
+		"typescript": "7.0.2"
+	}
 }

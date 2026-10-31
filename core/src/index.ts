@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process";
 import { chmodSync, existsSync, mkdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { createInterface } from "node:readline";
-import { loginWithAuthToken, loginWithQR, type Client } from "@evex/linejs";
+import { type Client, loginWithAuthToken, loginWithQR } from "@evex/linejs";
 import { FileStorage } from "@evex/linejs/storage";
 
 const DATA_DIR = join(process.env.XDG_DATA_HOME ?? `${process.env.HOME}/.local/share`, "line-kde");
@@ -42,7 +42,8 @@ const keepTokenFresh = () => {
 };
 
 const profile = async () => {
-	const me = await client!.getMyProfile();
+	if (!client) throw new Error("not signed in");
+	const me = await client.getMyProfile();
 	selfMid = me.mid;
 	selfName = me.displayName;
 	people.set(selfMid, { name: selfName, picture: "" });
@@ -147,11 +148,12 @@ const methods: Record<string, (params?: Record<string, unknown>) => Promise<unkn
 		return items.sort((a, b) => b.lastTime - a.lastTime);
 	},
 	"chat.send": async (params) => {
-		if (!client) throw new Error("not signed in");
+		const signedIn = client;
+		if (!signedIn) throw new Error("not signed in");
 		const mid = String(params?.mid);
 		const text = String(params?.text ?? "");
-		const attempt = (e2ee: boolean) => client!.base.talk.sendMessage({ to: mid, text, e2ee });
-		let sent;
+		const attempt = (e2ee: boolean) => signedIn.base.talk.sendMessage({ to: mid, text, e2ee });
+		let sent: Awaited<ReturnType<typeof attempt>>;
 		try {
 			sent = await attempt(true);
 		} catch (error) {
@@ -174,13 +176,15 @@ const methods: Record<string, (params?: Record<string, unknown>) => Promise<unkn
 		};
 	},
 	"chat.messages": async (params) => {
+		const signedIn = client;
+		if (!signedIn) throw new Error("not signed in");
 		const person = async (mid: string) => {
 			const known = people.get(mid);
 			if (known) return known;
 			const entry = { name: "", picture: "" };
 			if (mid.startsWith("u")) {
 				try {
-					const detail = (await client!.getUser(mid)).raw.targetProfileDetail;
+					const detail = (await signedIn.getUser(mid)).raw.targetProfileDetail;
 					entry.name = detail.profileName;
 					entry.picture = detail.picturePath;
 				} catch {
@@ -191,9 +195,8 @@ const methods: Record<string, (params?: Record<string, unknown>) => Promise<unkn
 			return entry;
 		};
 
-		if (!client) throw new Error("not signed in");
 		const mid = String(params?.mid);
-		const chat = chatCache.get(mid) ?? (await client.getChat(mid));
+		const chat = chatCache.get(mid) ?? (await signedIn.getChat(mid));
 		const messages = await chat.fetchMessages(30);
 		return Promise.all(
 			messages.map(async (message) => {

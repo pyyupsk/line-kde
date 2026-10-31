@@ -1,10 +1,14 @@
 {
-  "cmake.buildDirectory": "${workspaceFolder}/ui/build",
-  "cmake.sourceDirectory": "${workspaceFolder}/ui",
-  "qt-qml.qmlls.customArgs": [
-    "-b",
-    "${workspaceFolder}/ui/build/src",
-    "-I",
-    "${workspaceFolder}/ui/build/src"
-  ]
+	"biome.configurationPath": "core/biome.json",
+	"biome.lsp.bin": "core/node_modules/@biomejs/cli-linux-x64/biome",
+	"cmake.buildDirectory": "${workspaceFolder}/ui/build",
+	"cmake.sourceDirectory": "${workspaceFolder}/ui",
+	"editor.codeActionsOnSave": {
+		"source.fixAll.biome": "explicit"
+	},
+	"qt-qml.qmlls.customArgs": ["-b", "${workspaceFolder}/ui/build/src", "-I", "${workspaceFolder}/ui/build/src"],
+	"[json][jsonc][typescript]": {
+		"editor.defaultFormatter": "biomejs.biome",
+		"editor.formatOnSave": true
+	}
 }

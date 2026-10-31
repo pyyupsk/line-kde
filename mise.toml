@@ -1,0 +1,15 @@
+#:schema https://mise.jdx.dev/schema/mise.json
+
+[tools]
+node = "26"
+
+[tasks."check:core"]
+dir = "core"
+run = "npm run check"
+
+[tasks.check]
+depends = ["check:core"]
+
+[tasks.fmt]
+dir = "core"
+run = "npm run fmt"
