@@ -454,7 +454,7 @@ Kirigami.ApplicationWindow {
                     text: page.pin
                     color: Lds.text
                     font.pointSize: Lds.displaySize
-                    font.weight: Font.Heavy
+                    font.weight: Font.Black
                     font.letterSpacing: 10
                 }
             }
