@@ -3,10 +3,14 @@ import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 
-Kirigami.Page {
-    id: page
+Window {
+    id: aboutWindow
 
-    title: i18n("About")
+    title: i18n("About LINE for KDE")
+    color: Lds.bg
+    width: Kirigami.Units.gridUnit * 24
+    height: Kirigami.Units.gridUnit * 22
+    flags: Qt.Dialog
 
     ColumnLayout {
         anchors.centerIn: parent

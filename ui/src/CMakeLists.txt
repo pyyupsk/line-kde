@@ -13,6 +13,7 @@ qt_add_qml_module(linekde_static
         contents/ui/Lds.qml
         contents/ui/Main.qml
         contents/ui/About.qml
+        contents/ui/Settings.qml
 )
 
 
