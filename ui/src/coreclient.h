@@ -60,6 +60,7 @@ private:
     QVariantList m_messages;
     QString m_chatError;
     int m_qrSerial = 0;
+    QByteArray m_lastSaved;
     QString m_sessionPath;
     QString m_currentChat;
     QString m_status = QStringLiteral("idle");

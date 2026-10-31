@@ -1,5 +1,6 @@
 #include "coreclient.h"
 
+#include <QCoreApplication>
 #include <QDir>
 #include <QFile>
 #include <QJsonArray>
@@ -23,6 +24,7 @@ CoreClient::CoreClient(QObject *parent)
     connect(&m_process, &QProcess::readyReadStandardOutput, this, &CoreClient::readOutput);
     connect(&m_process, &QProcess::errorOccurred, this, [this](QProcess::ProcessError)
             { fail(m_process.errorString()); });
+    connect(qApp, &QCoreApplication::aboutToQuit, this, &CoreClient::persistSession);
     connect(&m_process, &QProcess::finished, this, [this](int code, QProcess::ExitStatus)
             {
         if (code != 0) {
@@ -190,7 +192,15 @@ void CoreClient::persistSession()
     {
         return;
     }
-    walletWrite(file.readAll());
+    const QByteArray blob = file.readAll();
+    if (blob.isEmpty() || blob == m_lastSaved)
+    {
+        return;
+    }
+    if (walletWrite(blob))
+    {
+        m_lastSaved = blob;
+    }
 }
 
 void CoreClient::readOutput()
