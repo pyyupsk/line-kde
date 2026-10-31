@@ -1,12 +1,19 @@
 {
+	"C_Cpp.intelliSenseEngine": "disabled",
 	"biome.configurationPath": "core/biome.json",
 	"biome.lsp.bin": "core/node_modules/@biomejs/cli-linux-x64/biome",
+	"clangd.arguments": ["--compile-commands-dir=${workspaceFolder}/ui/build", "--header-insertion=never"],
 	"cmake.buildDirectory": "${workspaceFolder}/ui/build",
 	"cmake.sourceDirectory": "${workspaceFolder}/ui",
 	"editor.codeActionsOnSave": {
 		"source.fixAll.biome": "explicit"
 	},
 	"qt-qml.qmlls.customArgs": ["-b", "${workspaceFolder}/ui/build/src", "-I", "${workspaceFolder}/ui/build/src"],
+	"yaml.disableSchemaDetection": "**/.clang-format",
+	"[cpp]": {
+		"editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+		"editor.formatOnSave": true
+	},
 	"[json][jsonc][typescript]": {
 		"editor.defaultFormatter": "biomejs.biome",
 		"editor.formatOnSave": true

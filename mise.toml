@@ -3,13 +3,46 @@
 [tools]
 node = "26"
 
+[tasks."build:ui"]
+description = "Compile the UI, which also type-checks the C++"
+run = "cmake --build ui/build"
+
 [tasks."check:core"]
+description = "Lint, format check and type check the core"
 dir = "core"
 run = "npm run check"
 
-[tasks.check]
-depends = ["check:core"]
+[tasks."check:cpp"]
+description = "Run clang-tidy on the C++"
+depends = ["build:ui"]
+run = "clang-tidy --quiet -p ui/build ui/src/*.cpp"
 
-[tasks.fmt]
+[tasks."check:format"]
+description = "Fail if the C++ or QML is not formatted"
+run = [
+  "clang-format --dry-run -Werror ui/src/*.cpp ui/src/*.h",
+  "for f in ui/src/contents/ui/*.qml; do /usr/lib/qt6/bin/qmlformat \"$f\" | diff -q - \"$f\" >/dev/null || { echo \"$f is not formatted\"; exit 1; }; done",
+]
+
+[tasks."check:qml"]
+description = "Run qmllint on the QML"
+depends = ["build:ui"]
+run = "cmake --build ui/build --target all_qmllint"
+
+[tasks.check]
+description = "Run every check in parallel"
+depends = ["check:core", "check:cpp", "check:format", "check:qml"]
+
+[tasks."fmt:core"]
 dir = "core"
 run = "npm run fmt"
+
+[tasks."fmt:ui"]
+run = [
+  "clang-format -i ui/src/*.cpp ui/src/*.h",
+  "/usr/lib/qt6/bin/qmlformat -i ui/src/contents/ui/*.qml",
+]
+
+[tasks.fmt]
+description = "Format the core and the UI in parallel"
+depends = ["fmt:core", "fmt:ui"]

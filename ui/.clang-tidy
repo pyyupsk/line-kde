@@ -1,0 +1,20 @@
+---
+Checks: >
+  -*,
+  bugprone-*,
+  clang-analyzer-*,
+  modernize-*,
+  performance-*,
+  readability-*,
+  -modernize-use-trailing-return-type,
+  -modernize-use-nodiscard,
+  -bugprone-suspicious-include,
+  -readability-convert-member-functions-to-static,
+  -readability-static-accessed-through-instance,
+  -readability-identifier-length,
+  -readability-magic-numbers
+# the four checks above flag Qt idioms: getters, moc includes, Q_INVOKABLE, app.exec()
+WarningsAsErrors: "*"
+HeaderFilterRegex: "/ui/src/"
+# Qt adds this GCC-only flag to compile_commands.json and clang rejects it
+RemovedArgs: [-mno-direct-extern-access]

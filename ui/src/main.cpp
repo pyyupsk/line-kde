@@ -13,23 +13,23 @@
 #include <QDir>
 #include <QFile>
 #include <QIcon>
-#include <QMenu>
-#include <QQuickWindow>
 #include <QLockFile>
-#include <QStandardPaths>
+#include <QMenu>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickStyle>
+#include <QQuickWindow>
+#include <QStandardPaths>
 #include <QUrl>
 
 #include "app.h"
 #include "coreclient.h"
 #include "version-linekde.h"
 #include <KAboutData>
-#include <KStatusNotifierItem>
-#include <QDBusConnection>
 #include <KLocalizedQmlContext>
 #include <KLocalizedString>
+#include <KStatusNotifierItem>
+#include <QDBusConnection>
 
 #include "linekdeconfig.h"
 
@@ -47,15 +47,13 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     // Default to org.kde.desktop style unless the user forces another style
-    if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE"))
-    {
+    if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")) {
         QQuickStyle::setStyle(u"org.kde.desktop"_s);
     }
 #endif
 
 #ifdef Q_OS_WINDOWS
-    if (AttachConsole(ATTACH_PARENT_PROCESS))
-    {
+    if (AttachConsole(ATTACH_PARENT_PROCESS)) {
         freopen("CONOUT$", "w", stdout);
         freopen("CONOUT$", "w", stderr);
     }
@@ -70,8 +68,7 @@ int main(int argc, char *argv[])
     QDir().mkpath(runtimeDir + QStringLiteral("/line-kde"));
     QLockFile instanceLock(runtimeDir + QStringLiteral("/line-kde/linekde.lock"));
     instanceLock.setStaleLockTime(0);
-    if (!instanceLock.tryLock(200))
-    {
+    if (!instanceLock.tryLock(200)) {
         qWarning("LINE for KDE is already running");
         return 0;
     }
@@ -102,7 +99,7 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
-    auto config = linekdeConfig::self();
+    auto *config = linekdeConfig::self();
 
     qmlRegisterSingletonInstance("com.pyyupsk.linekde.private", 1, 0, "Config", config);
 
@@ -113,8 +110,7 @@ int main(int argc, char *argv[])
     KLocalization::setupLocalizedContext(&engine);
     engine.loadFromModule("com.pyyupsk.linekde", u"Main");
 
-    if (engine.rootObjects().isEmpty())
-    {
+    if (engine.rootObjects().isEmpty()) {
         return -1;
     }
 
@@ -129,10 +125,8 @@ int main(int argc, char *argv[])
     trayMenu->addSeparator();
     QAction *quitAction = trayMenu->addAction(QIcon::fromTheme(u"application-exit"_s), i18n("Quit"));
 
-    const auto showWindow = [window]
-    {
-        if (!window)
-        {
+    const auto showWindow = [window] {
+        if (!window) {
             return;
         }
         window->show();
@@ -141,12 +135,11 @@ int main(int argc, char *argv[])
     };
     QObject::connect(showAction, &QAction::triggered, window, showWindow);
     QObject::connect(quitAction, &QAction::triggered, &app, &QCoreApplication::quit);
-    QObject::connect(&tray, &KStatusNotifierItem::activateRequested, window, [window](bool)
-                     {
-        if (window)
-        {
+    QObject::connect(&tray, &KStatusNotifierItem::activateRequested, window, [window](bool) {
+        if (window) {
             window->setVisible(!window->isVisible());
-        } });
+        }
+    });
 
     return app.exec();
 }

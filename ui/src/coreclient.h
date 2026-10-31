@@ -24,15 +24,42 @@ class CoreClient : public QObject
 public:
     explicit CoreClient(QObject *parent = nullptr);
 
-    QString status() const { return m_status; }
-    QString qrSource() const { return m_qrSource; }
-    QString pincode() const { return m_pincode; }
-    QString userName() const { return m_userName; }
-    QString errorText() const { return m_error; }
-    QVariantList chats() const { return m_chats; }
-    QVariantList messages() const { return m_messages; }
-    QString chatError() const { return m_chatError; }
-    int qrSerial() const { return m_qrSerial; }
+    QString status() const
+    {
+        return m_status;
+    }
+    QString qrSource() const
+    {
+        return m_qrSource;
+    }
+    QString pincode() const
+    {
+        return m_pincode;
+    }
+    QString userName() const
+    {
+        return m_userName;
+    }
+    QString errorText() const
+    {
+        return m_error;
+    }
+    QVariantList chats() const
+    {
+        return m_chats;
+    }
+    QVariantList messages() const
+    {
+        return m_messages;
+    }
+    QString chatError() const
+    {
+        return m_chatError;
+    }
+    int qrSerial() const
+    {
+        return m_qrSerial;
+    }
 
     Q_INVOKABLE void start();
     Q_INVOKABLE void listChats();

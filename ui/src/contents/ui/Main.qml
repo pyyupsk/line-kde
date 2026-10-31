@@ -460,6 +460,8 @@ Kirigami.ApplicationWindow {
             }
 
             QQC2.Button {
+                id: signInButton
+
                 Layout.alignment: Qt.AlignHCenter
                 Layout.preferredWidth: Kirigami.Units.gridUnit * 11
                 Layout.preferredHeight: Lds.buttonHeight
@@ -474,7 +476,7 @@ Kirigami.ApplicationWindow {
                 }
 
                 contentItem: QQC2.Label {
-                    text: parent.text
+                    text: signInButton.text
                     color: "#ffffff"
                     font.pointSize: Lds.bodySize
                     font.weight: Font.DemiBold
