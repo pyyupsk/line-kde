@@ -246,6 +246,7 @@ Kirigami.ApplicationWindow {
 
         Component.onCompleted: Core.start()
 
+        property string pin: Core.pincode
         property int qrSecondsLeft: 0
         property bool qrExpired: false
 
@@ -380,7 +381,7 @@ Kirigami.ApplicationWindow {
 
             QQC2.Label {
                 Layout.fillWidth: true
-                text: i18n("QR code login")
+                text: page.pin.length > 0 ? i18n("One more step") : i18n("QR code login")
                 color: Lds.text
                 font.pointSize: Lds.headingSize
                 font.bold: true
@@ -389,6 +390,7 @@ Kirigami.ApplicationWindow {
 
             QQC2.Label {
                 Layout.fillWidth: true
+                visible: page.pin.length === 0
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.WordWrap
                 color: Lds.textSecondary
@@ -413,7 +415,7 @@ Kirigami.ApplicationWindow {
 
             Rectangle {
                 Layout.alignment: Qt.AlignHCenter
-                visible: Core.status === "waiting"
+                visible: Core.status === "waiting" && page.pin.length === 0
                 opacity: page.qrExpired ? 0.25 : 1
                 implicitWidth: Kirigami.Units.gridUnit * 11
                 implicitHeight: implicitWidth
@@ -426,6 +428,36 @@ Kirigami.ApplicationWindow {
                     source: Core.qrSource
                     fillMode: Image.PreserveAspectFit
                     smooth: false
+                }
+            }
+
+            QQC2.Label {
+                Layout.fillWidth: true
+                visible: page.pin.length > 0
+                text: i18n("Type this PIN on your phone")
+                color: Lds.textSecondary
+                font.pointSize: Lds.smallSize
+                horizontalAlignment: Text.AlignHCenter
+            }
+
+            Rectangle {
+                Layout.alignment: Qt.AlignHCenter
+                visible: page.pin.length > 0
+                implicitWidth: Kirigami.Units.gridUnit * 11
+                implicitHeight: pinLabel.implicitHeight + Lds.pad * 2
+                radius: Lds.radius
+                color: "transparent"
+                border.width: 1
+                border.color: Lds.line
+
+                QQC2.Label {
+                    id: pinLabel
+                    anchors.centerIn: parent
+                    text: page.pin
+                    color: Lds.text
+                    font.pointSize: Lds.displaySize
+                    font.weight: Font.Heavy
+                    font.letterSpacing: 10
                 }
             }
 
