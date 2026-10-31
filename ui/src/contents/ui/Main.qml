@@ -65,13 +65,28 @@ Kirigami.ApplicationWindow {
                 model: Core.messages
                 clip: true
 
-                delegate: QQC2.Label {
+                delegate: ColumnLayout {
                     required property var modelData
                     width: ListView.view.width
-                    text: modelData.text
-                    wrapMode: Text.Wrap
-                    padding: Kirigami.Units.smallSpacing
-                    horizontalAlignment: modelData.mine ? Text.AlignRight : Text.AlignLeft
+                    spacing: 0
+
+                    QQC2.Label {
+                        Layout.fillWidth: true
+                        padding: Kirigami.Units.smallSpacing
+                        text: modelData.fromName + " · " + Qt.formatTime(new Date(modelData.time), "HH:mm")
+                        font: Kirigami.Theme.smallFont
+                        opacity: 0.6
+                        horizontalAlignment: modelData.mine ? Text.AlignRight : Text.AlignLeft
+                    }
+
+                    QQC2.Label {
+                        Layout.fillWidth: true
+                        padding: Kirigami.Units.smallSpacing
+                        text: modelData.text
+                        textFormat: Text.PlainText
+                        wrapMode: Text.Wrap
+                        horizontalAlignment: modelData.mine ? Text.AlignRight : Text.AlignLeft
+                    }
                 }
             }
 

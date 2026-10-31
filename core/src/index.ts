@@ -27,11 +27,15 @@ const init = { device: "DESKTOPMAC" as const, storage };
 
 let client: Client | null = null;
 let selfMid = "";
+let selfName = "";
+const people = new Map<string, { name: string; picture: string }>();
 const chatCache = new Map<string, Awaited<ReturnType<Client["fetchJoinedChats"]>>[number]>();
 
 const profile = async () => {
 	const me = await client!.getMyProfile();
 	selfMid = me.mid;
+	selfName = me.displayName;
+	people.set(selfMid, { name: selfName, picture: "" });
 	return { name: me.displayName, mid: me.mid };
 };
 
@@ -71,16 +75,42 @@ const methods: Record<string, (params?: Record<string, unknown>) => Promise<unkn
 		return chats.map((chat) => ({ mid: chat.mid, name: chat.name, type: String(chat.raw?.type ?? "") }));
 	},
 	"chat.messages": async (params) => {
+		const person = async (mid: string) => {
+			const known = people.get(mid);
+			if (known) return known;
+			const entry = { name: "", picture: "" };
+			if (mid.startsWith("u")) {
+				try {
+					const detail = (await client!.getUser(mid)).raw.targetProfileDetail;
+					entry.name = detail.profileName;
+					entry.picture = detail.picturePath;
+				} catch {
+					// unknown contact: the UI falls back to the raw mid
+				}
+			}
+			people.set(mid, entry);
+			return entry;
+		};
+
 		if (!client) throw new Error("not signed in");
 		const mid = String(params?.mid);
 		const chat = chatCache.get(mid) ?? (await client.getChat(mid));
 		const messages = await chat.fetchMessages(30);
-		return messages.map((message) => ({
-			id: String(message.raw.id),
-			text: message.raw.text ?? "",
-			from: message.from?.id ?? "",
-			mine: (message.from?.id ?? "") === selfMid,
-		}));
+		return Promise.all(
+			messages.map(async (message) => {
+				const from = message.from?.id ?? "";
+				const who = await person(from);
+				return {
+					id: String(message.raw.id),
+					text: message.raw.text ?? "",
+					from,
+					mine: from === selfMid,
+					fromName: who.name || (from === selfMid ? selfName : from.slice(0, 8)),
+					picture: who.picture,
+					time: Number(message.raw.createdTime ?? 0),
+				};
+			}),
+		);
 	},
 };
 
