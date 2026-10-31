@@ -10,6 +10,7 @@ namespace
     constexpr int ChatsRequest = 2;
     constexpr int MessagesRequest = 3;
     constexpr int SendRequest = 4;
+    constexpr int LogoutRequest = 5;
 }
 
 CoreClient::CoreClient(QObject *parent)
@@ -70,6 +71,15 @@ void CoreClient::openChat(const QString &mid)
     request.insert(QStringLiteral("method"), QStringLiteral("chat.messages"));
     request.insert(QStringLiteral("params"), params);
     m_process.write(QJsonDocument(request).toJson(QJsonDocument::Compact) + '\n');
+}
+
+void CoreClient::signOut()
+{
+    if (m_process.state() == QProcess::NotRunning)
+    {
+        return;
+    }
+    m_process.write(QByteArrayLiteral("{\"id\":5,\"method\":\"auth.logout\"}\n"));
 }
 
 void CoreClient::sendMessage(const QString &text)
@@ -160,6 +170,19 @@ void CoreClient::handle(const QJsonObject &message)
             m_messages.append(entry.toObject().toVariantMap());
         }
         Q_EMIT messagesChanged();
+        return;
+    }
+
+    if (id == LogoutRequest)
+    {
+        m_chats.clear();
+        m_messages.clear();
+        m_chatError.clear();
+        m_currentChat.clear();
+        m_userName.clear();
+        Q_EMIT chatsChanged();
+        Q_EMIT messagesChanged();
+        setStatus(QStringLiteral("idle"));
         return;
     }
 

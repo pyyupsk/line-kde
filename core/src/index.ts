@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { chmodSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { createInterface } from "node:readline";
 import { loginWithAuthToken, loginWithQR, type Client } from "@evex/linejs";
@@ -67,6 +67,15 @@ const auth = async () => {
 
 const methods: Record<string, (params?: Record<string, unknown>) => Promise<unknown>> = {
 	"auth.start": auth,
+	"auth.logout": async () => {
+		client = null;
+		selfMid = "";
+		selfName = "";
+		people.clear();
+		chatCache.clear();
+		if (existsSync(SESSION)) unlinkSync(SESSION);
+		return { ok: true };
+	},
 	"chats.list": async () => {
 		if (!client) throw new Error("not signed in");
 		const chats = await client.fetchJoinedChats();

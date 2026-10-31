@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
         // The program name used internally.
         u"linekde"_s,
         // A displayable program name string.
-        i18nc("@title", "line-kde"),
+        i18nc("@title", "LINE for KDE"),
         // The program version string.
         QStringLiteral(LINEKDE_VERSION_STRING),
         // Short description of what the app does.

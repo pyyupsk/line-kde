@@ -36,6 +36,7 @@ public:
     Q_INVOKABLE void listChats();
     Q_INVOKABLE void openChat(const QString &mid);
     Q_INVOKABLE void sendMessage(const QString &text);
+    Q_INVOKABLE void signOut();
 
 Q_SIGNALS:
     void changed();
