@@ -1,4 +1,10 @@
 {
   "cmake.buildDirectory": "${workspaceFolder}/ui/build",
-  "cmake.sourceDirectory": "${workspaceFolder}/ui"
+  "cmake.sourceDirectory": "${workspaceFolder}/ui",
+  "qt-qml.qmlls.customArgs": [
+    "-b",
+    "${workspaceFolder}/ui/build/src",
+    "-I",
+    "${workspaceFolder}/ui/build/src"
+  ]
 }
